@@ -1,0 +1,27 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "LFT_DEV",
+      "group": "LFT",
+      "database": "lft_dev",
+      "username": "root",
+      "password": "root"
+    },
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5433,
+      "driver": "PostgreSQL",
+      "name": "LFT_TEST",
+      "database": "lft_dev_test",
+      "username": "docker",
+      "password": "docker"
+    }
+  ],
+}

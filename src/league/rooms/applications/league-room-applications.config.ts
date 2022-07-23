@@ -1,0 +1,6 @@
+export enum LEAGUE_ROOM_APPLICATION_STATUS {
+  REJECTED = -1,
+  PENDING = 0,
+  APPROVED = 1,
+  LEFT = 2,
+}

@@ -1,0 +1,2 @@
+2)create and do task confirmation email when registering
+3)create and do task logout

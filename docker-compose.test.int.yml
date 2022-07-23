@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  test-db:
+    container_name: test-db
+    build:
+      context: ./test/int
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_DB=lft_dev_test
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
