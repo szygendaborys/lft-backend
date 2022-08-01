@@ -45,7 +45,7 @@
     "nest-router": "^1.0.9",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "pg": "^8.5.1",
+    "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "request-context": "^2.0.0",
     "rimraf": "^3.0.2",
