@@ -244,4 +244,30 @@ describe('Create league rooms integration tests', () => {
       description: given.description,
     });
   });
+
+  it('201 - username should be returned', async () => {
+    const given = {
+      description: faker.datatype.string(),
+      region: randomEnum(RIOT_API_REGIONS),
+      demandedPositions: [RIOT_API_POSITIONS.SUPPORT],
+      date: faker.date.future(),
+      ownerPosition: RIOT_API_POSITIONS.MIDDLE,
+    } as CreateLeagueRoomDto;
+
+    const res = await makeRequest(app)
+      .post(getRoute())
+      .set(
+        authHeaderJwt({
+          id: user.id,
+        }),
+      )
+      .send(given);
+
+    expect(res.status).toBe(HttpStatus.CREATED);
+    expect(res.body.data).toMatchObject({
+      owner: {
+        username: user.username,
+      },
+    });
+  });
 });
