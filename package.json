@@ -71,7 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.12.1",
-    "eslint-config-prettier": "7.2.0",
+    "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "^3.4.1",
     "faker": "^5.5.3",
     "husky": "^8.0.1",
