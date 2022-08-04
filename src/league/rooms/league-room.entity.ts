@@ -193,8 +193,10 @@ export class LeagueRoom extends AbstractEntity {
   getApplicationsByStatus(
     status: LEAGUE_ROOM_APPLICATION_STATUS,
   ): LeagueRoomApplication[] {
-    return this.applications.filter(
-      (application) => application.status === status,
+    return (
+      this.applications?.filter(
+        (application) => application.status === status,
+      ) ?? []
     );
   }
 
