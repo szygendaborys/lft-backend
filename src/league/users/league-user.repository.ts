@@ -9,8 +9,8 @@ export class LeagueUserRepository extends Repository<LeagueUser> {
 
   async findByUserId(userId: string): Promise<LeagueUser | undefined> {
     return this.createQueryBuilder('lu')
-      .innerJoin('lu.userGames', 'ug')
-      .innerJoin('ug.user', 'u', 'u.id = :userId', { userId })
+      .innerJoinAndSelect('lu.userGames', 'ug')
+      .innerJoinAndSelect('ug.user', 'u', 'u.id = :userId', { userId })
       .getOne();
   }
 

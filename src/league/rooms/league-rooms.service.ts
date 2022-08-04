@@ -1,3 +1,4 @@
+import { LeagueUserRepository } from './../users/league-user.repository';
 import { Injectable } from '@nestjs/common';
 import { UserGamesNotFoundException } from '../../games/userGamesNotFound.exception';
 import { PageDto } from '../../shared/page/page.dto';
@@ -23,6 +24,7 @@ export class LeagueRoomsService {
     private readonly leagueRoomsRepository: LeagueRoomsRepository,
     private readonly leagueRoomApplicationRepository: LeagueRoomApplicationsRepository,
     private readonly usersRepository: UserRepository,
+    private readonly leagueUserRepository: LeagueUserRepository,
   ) {}
 
   async updateRoom({
@@ -64,16 +66,7 @@ export class LeagueRoomsService {
     const { userId } = UsersContext.get();
     const { ownerPosition, demandedPositions } = createLeagueRoomDto;
 
-    const user = await this.usersRepository.findOneById(userId);
-    const leagueUser = user?.games?.league_of_legends;
-
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-
-    if (!user.games) {
-      throw new UserGamesNotFoundException();
-    }
+    const leagueUser = await this.leagueUserRepository.findByUserId(userId);
 
     if (!leagueUser) {
       throw new LeagueUserNotFoundException();
