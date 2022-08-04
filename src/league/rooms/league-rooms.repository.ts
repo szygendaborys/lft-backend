@@ -117,7 +117,7 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
 
         return `lr.id IN (${subQuery})`;
       })
-      .andWhere('lr.date > now()')
+      .andWhere("lr.date > now() - interval '1 hour'")
       .andWhere('lr.region = :region', { region: leagueUser.region })
       .orderBy('lr.date', order)
       .paginate(pageOptionsDto);
