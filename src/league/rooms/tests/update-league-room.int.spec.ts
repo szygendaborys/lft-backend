@@ -389,5 +389,51 @@ describe('Update league room integration tests', () => {
         ]),
       });
     });
+
+    it('204 - removed demanding positions', async () => {
+      const leagueRoom = await saveLeagueRoom({
+        region: leagueUser.region,
+        applications: [],
+        demandedPositions: [RIOT_API_POSITIONS.SUPPORT],
+      });
+      await saveLeagueRoomApplication({
+        leagueUser,
+        room: leagueRoom,
+        isOwner: true,
+        appliedForPosition: RIOT_API_POSITIONS.ADC,
+        status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
+      });
+      await saveLeagueRoomApplication({
+        room: leagueRoom,
+        isOwner: false,
+        appliedForPosition: RIOT_API_POSITIONS.TOP,
+        status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
+      });
+
+      const given = {
+        demandedPositions: [],
+      };
+
+      const res = await makeRequest(app)
+        .patch(getRoute(leagueRoom.id))
+        .set(
+          authHeaderJwt({
+            id: user.id,
+          }),
+        )
+        .send(given);
+
+      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
+        relations: ['applications'],
+      });
+
+      expect(res.status).toBe(HttpStatus.NO_CONTENT);
+      expect(savedLeagueRoom).toMatchObject({
+        id: leagueRoom.id,
+        demandedPositions: given.demandedPositions,
+      });
+      expect(savedLeagueRoom.currentPlayers).toBe(2);
+      expect(savedLeagueRoom.requiredPlayers).toBe(2);
+    });
   });
 });
