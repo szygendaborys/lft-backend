@@ -23,10 +23,11 @@ export class UpdateLeagueRoomDto extends PartialType(
   @IsUUID()
   ownerId?: string;
 
-  @ApiProperty({ enum: RIOT_API_POSITIONS, isArray: true })
+  @ApiPropertyOptional({ enum: RIOT_API_POSITIONS, isArray: true })
   @IsEnum(RIOT_API_POSITIONS, { each: true })
   @ArrayMinSize(0)
   @ArrayMaxSize(4)
   @Transform(({ value }) => [...new Set(value)])
+  @IsOptional()
   demandedPositions: RIOT_API_POSITIONS[];
 }
