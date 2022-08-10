@@ -29,7 +29,7 @@ export class LeagueUsersService {
   }: CreateLeagueUserDto): Promise<LeagueUser> {
     const { userId } = UsersContext.get();
 
-    const [{ accountId }, user] = await Promise.all([
+    const [{ id: summonerId }, user] = await Promise.all([
       this.riotApiService.fetchAccount(region, summonerName),
       this.usersRepository.findOneById(userId),
     ]);
@@ -43,7 +43,7 @@ export class LeagueUsersService {
       throw new UserNotFoundException();
     }
 
-    if (!accountId) {
+    if (!summonerId) {
       throw new RiotLeagueUserNotFoundException();
     }
 
@@ -56,7 +56,7 @@ export class LeagueUsersService {
     }
 
     const leagueUser = new LeagueUser({
-      summonerId: accountId,
+      summonerId,
       region,
       mainPosition,
       secondaryPosition,
@@ -75,12 +75,13 @@ export class LeagueUsersService {
       ...updateLeagueUserDto,
     });
 
-    const { accountId } = await this.riotApiService.fetchAccountBySummonerId(
-      updatedLeagueUser.region,
-      updatedLeagueUser.summonerId,
-    );
+    const { id: summonerId } =
+      await this.riotApiService.fetchAccountBySummonerId(
+        updatedLeagueUser.region,
+        updatedLeagueUser.summonerId,
+      );
 
-    if (!accountId) {
+    if (!summonerId) {
       throw new RiotLeagueUserNotFoundException();
     }
 
@@ -94,7 +95,7 @@ export class LeagueUsersService {
       throw new PositionMustDifferException();
     }
 
-    updatedLeagueUser.setSummonerId(accountId);
+    updatedLeagueUser.setSummonerId(summonerId);
 
     await this.leagueUserRepository.saveOne(updatedLeagueUser);
   }
