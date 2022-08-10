@@ -260,7 +260,7 @@ describe('League users integration tests', () => {
           id: user.id,
         }),
         league_of_legends: {
-          summonerId: riotPlayerResponse.accountId,
+          summonerId: riotPlayerResponse.id,
           region: given.region,
           mainPosition: given.mainPosition,
           secondaryPosition: given.secondaryPosition,
@@ -455,7 +455,7 @@ describe('League users integration tests', () => {
           id: user.id,
         }),
         league_of_legends: {
-          summonerId: riotPlayerResponse.accountId,
+          summonerId: riotPlayerResponse.id,
           region: given.region,
           mainPosition: given.mainPosition,
           secondaryPosition: given.secondaryPosition,
