@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { DateUtils } from './../shared/date.utils';
 import {
   Column,
@@ -15,6 +16,8 @@ import { ONE_MINUTE_IN_S, TEN_SECONDS_IN_S } from '../shared/constants';
 import { TooManyRequestsException } from '../shared/exceptions/tooManyRequests.exception';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
+import { StringRegexOptions } from 'joi';
+import { UtilsService } from '../shared/utils.service';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -87,9 +90,9 @@ export class User extends AbstractEntity {
     Object.assign(this, partial);
   }
 
-  update({ password }: UpdateUserDto): void {
+  async update({ password, oldPassword }: UpdateUserDto): Promise<void> {
     if (password) {
-      this.changePassword(password);
+      await this.changePassword({ password, oldPassword });
     }
   }
 
@@ -141,7 +144,26 @@ export class User extends AbstractEntity {
     return this.resetPasswordVerificationCode === verificationCode;
   }
 
-  changePassword(password: string): void {
+  async changePassword({
+    password,
+    oldPassword,
+  }: {
+    password: string;
+    oldPassword: string;
+  }): Promise<void> {
+    const isOldPasswordValid = await UtilsService.validateHash(
+      oldPassword,
+      this.password,
+    );
+
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException();
+    }
+
+    this.password = password;
+  }
+
+  changePasswordWithoutValidation(password: string): void {
     this.password = password;
   }
 }

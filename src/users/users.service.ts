@@ -25,10 +25,7 @@ export class UsersService {
     private readonly notificationMedium: NotificationMedium,
   ) {}
 
-  async login({
-    username,
-    password,
-  }: LoginUserDto): Promise<{
+  async login({ username, password }: LoginUserDto): Promise<{
     user: User;
     accessToken: TokenPayloadDto;
     refreshToken: TokenPayloadDto;
@@ -66,7 +63,7 @@ export class UsersService {
       throw new UserNotFoundException();
     }
 
-    user.update(updateUserDto);
+    await user.update(updateUserDto);
 
     await this.userRepository.save(user);
   }
@@ -114,9 +111,8 @@ export class UsersService {
       throw new InvalidVerificationCodeException();
     }
 
-    const isCodeValid = user.validateResetPasswordVerificationCode(
-      verificationCode,
-    );
+    const isCodeValid =
+      user.validateResetPasswordVerificationCode(verificationCode);
 
     await this.userRepository.save(user);
 
@@ -124,7 +120,7 @@ export class UsersService {
       throw new InvalidVerificationCodeException();
     }
 
-    user.changePassword(newPassword);
+    user.changePasswordWithoutValidation(newPassword);
 
     await this.userRepository.save(user);
   }

@@ -296,6 +296,26 @@ describe('User integration tests', () => {
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
     });
 
+    it('401 - invalid old password', async () => {
+      const user = await saveUser();
+
+      const given = {
+        oldPassword: faker.datatype.string(),
+        password: faker.datatype.string(),
+      };
+
+      const res = await makeRequest(app)
+        .patch(getRoute())
+        .set(
+          authHeaderJwt({
+            id: user.id,
+          }),
+        )
+        .send(given);
+
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
     it('401', async () => {
       const res = await makeRequest(app)
         .patch(getRoute())
@@ -306,9 +326,14 @@ describe('User integration tests', () => {
     });
 
     it('204 - changed password', async () => {
-      const user = await saveUser();
+      const oldPassword = faker.datatype.string();
+
+      const user = await saveUser({
+        password: oldPassword,
+      });
 
       const given = {
+        oldPassword,
         password: faker.datatype.string(),
       };
 
@@ -328,9 +353,13 @@ describe('User integration tests', () => {
     });
 
     it('204 - but should not change username', async () => {
-      const user = await saveUser();
+      const oldPassword = faker.datatype.string();
+      const user = await saveUser({
+        password: oldPassword,
+      });
 
       const given = {
+        oldPassword,
         username: faker.datatype.string(),
       };
 
