@@ -8,12 +8,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import * as morgan from 'morgan';
-import {
-  initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository,
-} from 'typeorm-transactional-cls-hooked';
 import { RolesChecker } from '../test/utils/roles.utils';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/badRequest.filter';
@@ -30,9 +26,6 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 async function bootstrap() {
   als.enable();
   als.enableLinkedTop();
-
-  initializeTransactionalContext();
-  patchTypeORMRepositoryWithBaseRepository();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 

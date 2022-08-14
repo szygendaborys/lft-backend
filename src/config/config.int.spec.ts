@@ -1,6 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { Connection } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
@@ -16,7 +15,6 @@ import { ConfigsModule } from './configs.module';
 
 describe('Config integration tests', () => {
   let app: INestApplication;
-  let connection: Connection;
   let rolesChecker: RolesChecker;
 
   const ROUTE = '/api/v1/config';
@@ -25,7 +23,6 @@ describe('Config integration tests', () => {
     const module = await compileTestingModule([ConfigsModule]);
     app = await init(module);
 
-    connection = module.get<Connection>(Connection);
     rolesChecker = module.get<RolesChecker>(RolesChecker);
   });
 

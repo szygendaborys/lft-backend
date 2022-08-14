@@ -1,5 +1,5 @@
-import { getConnection } from 'typeorm';
 import { UserGames } from '../../src/games/userGames.entity';
+import { testDataSource } from '../test.module';
 import { createUser } from './user.utils';
 
 export function createUserGames(opts?: Partial<UserGames>): UserGames {
@@ -12,5 +12,5 @@ export function createUserGames(opts?: Partial<UserGames>): UserGames {
 export async function saveUserGames(
   opts?: Partial<UserGames>,
 ): Promise<UserGames> {
-  return getConnection().getRepository(UserGames).save(createUserGames(opts));
+  return testDataSource.getRepository(UserGames).save(createUserGames(opts));
 }

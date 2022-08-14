@@ -9,13 +9,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { getConnection } from 'typeorm';
 import { JwtUser } from '../../src/auth/interfaces/jwtUser';
 import { User } from '../../src/users/user.entity';
 import { UsersContext } from '../../src/users/users.context';
+import { testDataSource } from '../test.module';
 
 export const TEST_SECRET = 'test_secret';
-export const CONNECTION = 'CONNECTION';
 
 @Injectable()
 export class TestAuthGuardJwt implements CanActivate {
@@ -43,7 +42,9 @@ export class TestAuthGuardJwt implements CanActivate {
     const decoded = this.jwtService.decode(jwt) as JwtUser;
     if (!decoded) throw new UnauthorizedException();
 
-    const user = await getConnection().getRepository(User).findOne(decoded.id);
+    const user = await testDataSource.getRepository(User).findOne({
+      where: { id: decoded.id },
+    });
     if (!user) throw new UnauthorizedException();
 
     req.user = user;

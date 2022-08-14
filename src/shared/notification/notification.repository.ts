@@ -1,9 +1,16 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { NotificationEntity } from './notification.entity';
 
-@EntityRepository(NotificationEntity)
-export class NotificationRepository extends Repository<NotificationEntity> {
+@Injectable()
+export class NotificationRepository {
+  constructor(
+    @InjectRepository(NotificationEntity)
+    private readonly repository: Repository<NotificationEntity>,
+  ) {}
+
   async saveNotification(entity: NotificationEntity): Promise<void> {
-    await this.save(entity);
+    await this.repository.save(entity);
   }
 }

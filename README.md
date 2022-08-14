@@ -14,14 +14,15 @@ In order to run app write:
 
 `make compose-up` or `docker-compose up -d`
 
-## Wiping/seeding data in DB
+## Wiping data in DB
 
 In order to drop all data write:
 
 `make wipe-data`;
 
-Seeding database requires improvement (Injecting all seed methods as a separate providers so we can use it in a stepper-like class `.step(), .step()...`)
-Seeding happens automatically during the first request, it then flags a seeding process as done, so when you wipe all data you'll need to restart the server too (i.e. by saving some file);
+## Seeding data into DB
+
+TODO
 
 ## Security
 

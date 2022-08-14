@@ -1,10 +1,21 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { LeagueUser } from '../../users/league-user.entity';
 import { LeagueRoomApplication } from './league-room-application.entity';
 import { LEAGUE_ROOM_APPLICATION_STATUS } from './league-room-applications.config';
 
-@EntityRepository(LeagueRoomApplication)
-export class LeagueRoomApplicationsRepository extends Repository<LeagueRoomApplication> {
+@Injectable()
+export class LeagueRoomApplicationsRepository {
+  constructor(
+    @InjectRepository(LeagueRoomApplication)
+    private readonly repository: Repository<LeagueRoomApplication>,
+  ) {}
+
+  save(entity: LeagueRoomApplication): Promise<LeagueRoomApplication> {
+    return this.repository.save(entity);
+  }
+
   async findByRoomIdAndApplicationId({
     roomId,
     applicationId,
@@ -12,7 +23,8 @@ export class LeagueRoomApplicationsRepository extends Repository<LeagueRoomAppli
     roomId: string;
     applicationId: string;
   }): Promise<LeagueRoomApplication | undefined> {
-    return this.createQueryBuilder('lra')
+    return this.repository
+      .createQueryBuilder('lra')
       .where('lra.room = :roomId', {
         roomId,
       })
@@ -28,7 +40,8 @@ export class LeagueRoomApplicationsRepository extends Repository<LeagueRoomAppli
     roomId: string;
     leagueUser: LeagueUser;
   }): Promise<LeagueRoomApplication | undefined> {
-    return this.createQueryBuilder('lra')
+    return this.repository
+      .createQueryBuilder('lra')
       .where('lra.room = :roomId', {
         roomId,
       })
@@ -45,7 +58,8 @@ export class LeagueRoomApplicationsRepository extends Repository<LeagueRoomAppli
     roomId: string;
     leagueUser: LeagueUser;
   }): Promise<boolean> {
-    const roomOwner = await this.createQueryBuilder('lra')
+    const roomOwner = await this.repository
+      .createQueryBuilder('lra')
       .where('lra.room = :roomId', { roomId })
       .andWhere('lra.leagueUser = :leagueUserId AND lra.isOwner IS TRUE', {
         leagueUserId: leagueUser.id,
@@ -61,7 +75,8 @@ export class LeagueRoomApplicationsRepository extends Repository<LeagueRoomAppli
     roomId: string;
     status: LEAGUE_ROOM_APPLICATION_STATUS;
   }): Promise<LeagueRoomApplication[]> {
-    return this.createQueryBuilder('lra')
+    return this.repository
+      .createQueryBuilder('lra')
       .where('lra.room = :roomId', { roomId })
       .andWhere('lra.status = :status', { status })
       .getMany();

@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { Connection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import {
   authHeaderJwt,
   compileTestingModule,
@@ -21,7 +21,7 @@ import { RIOT_API_QUEUE_TYPES, RIOT_API_REGIONS } from './riotApi.config';
 
 describe('Riot API int tests', () => {
   let app: INestApplication;
-  let connection: Connection;
+  let dataSource: DataSource;
   let toPromise: jest.Mock;
 
   const ROUTE = '/api/v1/riot_api';
@@ -34,7 +34,7 @@ describe('Riot API int tests', () => {
     const module = await compileTestingModule([LeagueModule]);
 
     app = await init(module);
-    connection = module.get<Connection>(Connection);
+    dataSource = module.get<DataSource>(DataSource);
     toPromise = module.get(TO_PROMISE);
   });
 
@@ -43,7 +43,7 @@ describe('Riot API int tests', () => {
   });
 
   afterEach(async () => {
-    await connection.createQueryBuilder().delete().from(User).execute();
+    await dataSource.createQueryBuilder().delete().from(User).execute();
   });
   it.each(endpoints)('503', async (endpoint: string) => {
     const user = await saveUser();

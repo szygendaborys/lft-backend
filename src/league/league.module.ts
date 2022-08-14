@@ -1,3 +1,5 @@
+import { LeagueRoomApplication } from './rooms/applications/league-room-application.entity';
+import { UserModule } from './../users/user.module';
 import { LeagueUsersSerializer } from './users/league-user.serializer';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -24,19 +26,19 @@ import { LeagueRoomApplicationStrategyResolver } from './rooms/applications/leag
 import { ApprovedLeagueRoomApplicationHandlerStrategy } from './rooms/applications/strategies/approved-league-room-application.handler-strategy';
 import { RejectedLeagueRoomApplicationHandlerStrategy } from './rooms/applications/strategies/rejected-league-room-application.handler-strategy';
 import { LeagueRoomApplicationHandlerStrategy } from './rooms/applications/strategies/league-room-application.handler-strategy';
+import { LeagueUser } from './users/league-user.entity';
+import { LeagueRoom } from './rooms/league-room.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      LeagueUserRepository,
-      UserGamesRepository,
-      UserRepository,
-      LeagueRoomsRepository,
-      LeagueRoomApplicationsRepository,
-    ]),
+    TypeOrmModule.forFeature([LeagueUser, LeagueRoom, LeagueRoomApplication]),
+    UserModule,
   ],
   providers: [
     HttpLogger,
+    LeagueUserRepository,
+    LeagueRoomsRepository,
+    LeagueRoomApplicationsRepository,
     LeagueUsersService,
     RiotApiService,
     LeagueRoomsService,
