@@ -4,7 +4,6 @@ import '../src/boilerplate.polyfill';
 import {
   ClassSerializerInterceptor,
   Global,
-  HttpService,
   HttpStatus,
   INestApplication,
   Module,
@@ -20,7 +19,7 @@ import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as als from 'async-local-storage';
 import * as request from 'supertest';
-import { getConnection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { JwtAuthGuard } from '../src/auth/jwt.guard';
 import { GameConfig } from '../src/config/entities/game.config.entity';
@@ -41,13 +40,11 @@ import { PaginatedResponseInterceptor } from '../src/shared/interceptors/paginat
 import { ResponseInterceptor } from '../src/shared/interceptors/response.interceptor';
 import { LeagueRoomApplication } from '../src/league/rooms/applications/league-room-application.entity';
 import { Mailer } from '../src/shared/mailer/mailer';
-import {
-  initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository,
-} from 'typeorm-transactional-cls-hooked';
 import * as faker from 'faker';
+import { HttpService } from '@nestjs/axios';
 
 export const TO_PROMISE = 'toPromise';
+export let testDataSource: DataSource;
 
 @Global()
 @Module({
@@ -92,6 +89,13 @@ export function createTestingModule(modules: any[]): TestingModuleBuilder {
           synchronize: true,
           logging: ['error'],
         }),
+        dataSourceFactory: async (options) => {
+          const dataSource = await new DataSource(options).initialize();
+
+          testDataSource = dataSource;
+
+          return dataSource;
+        },
       }),
       ...modules,
     ],
@@ -144,9 +148,6 @@ export function refreshHeaderJwt(opts?: { id?: string; expiresAt?: number }) {
 export async function init(
   moduleFixture: TestingModule,
 ): Promise<INestApplication> {
-  initializeTransactionalContext();
-  patchTypeORMRepositoryWithBaseRepository();
-
   const app = moduleFixture.createNestApplication();
 
   const reflector = app.get(Reflector);
@@ -198,21 +199,19 @@ export const jwtService = new JwtService({
 });
 
 export async function clearSchema() {
-  const connection = getConnection();
-
-  await connection
+  await testDataSource
     .createQueryBuilder()
     .delete()
     .from(NotificationEntity)
     .execute();
-  await connection
+  await testDataSource
     .createQueryBuilder()
     .delete()
     .from(LeagueRoomApplication)
     .execute();
-  await connection.createQueryBuilder().delete().from(LeagueRoom).execute();
-  await connection.createQueryBuilder().delete().from(User).execute();
-  await connection.createQueryBuilder().delete().from(UserGames).execute();
-  await connection.createQueryBuilder().delete().from(LeagueUser).execute();
-  await connection.createQueryBuilder().delete().from(GameConfig).execute();
+  await testDataSource.createQueryBuilder().delete().from(LeagueRoom).execute();
+  await testDataSource.createQueryBuilder().delete().from(User).execute();
+  await testDataSource.createQueryBuilder().delete().from(UserGames).execute();
+  await testDataSource.createQueryBuilder().delete().from(LeagueUser).execute();
+  await testDataSource.createQueryBuilder().delete().from(GameConfig).execute();
 }

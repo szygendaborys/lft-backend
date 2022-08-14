@@ -14,7 +14,7 @@ import { UserNotFoundException } from './user-not-found.exception';
 import { UpdateUserDto } from './dto/update.user.dto';
 import { ForgotPasswordDto } from './dto/forgot.password.dto';
 import { NotificationTypes } from '../shared/notification/notification.config';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +23,7 @@ export class UsersService {
     private readonly userGamesRepository: UserGamesRepository,
     private readonly authService: AuthService,
     private readonly notificationMedium: NotificationMedium,
+    private readonly dataSource: DataSource,
   ) {}
 
   async login({ username, password }: LoginUserDto): Promise<{
@@ -79,7 +80,11 @@ export class UsersService {
     return user;
   }
 
-  @Transactional()
+  /**
+   * TODO: Transactional CLS Hooked does not work with typeorm v9.0 +
+   * TODO: Need to find a way of handling transaction in nest
+   * We need to find another clear way of handling transactions
+   */
   async sendResetPasswordCode({ username }: ForgotPasswordDto): Promise<void> {
     const user = await this.userRepository.findOneByUsername(username);
 

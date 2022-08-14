@@ -24,6 +24,7 @@ export class SeedingMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    const repository = this.entityManager.getRepository(SeedingEntity);
     if (await this.isSeedingComplete) {
       return next();
     }
@@ -39,8 +40,8 @@ export class SeedingMiddleware implements NestMiddleware {
 
       // USERS_SEED
       if (
-        !(await this.entityManager.findOne(SeedingEntity, {
-          id: Seeds.USERS_SEED,
+        !(await repository.findOne({
+          where: { id: Seeds.USERS_SEED },
         }))
       ) {
         await this.entityManager.transaction(
@@ -52,8 +53,10 @@ export class SeedingMiddleware implements NestMiddleware {
 
       // CONFIG_SEED
       if (
-        !(await this.entityManager.findOne(SeedingEntity, {
-          id: Seeds.CONFIG_SEED,
+        !(await repository.findOne({
+          where: {
+            id: Seeds.CONFIG_SEED,
+          },
         }))
       ) {
         await this.entityManager.transaction(
@@ -65,8 +68,10 @@ export class SeedingMiddleware implements NestMiddleware {
 
       // LEAGUE_USER_SEED
       if (
-        !(await this.entityManager.findOne(SeedingEntity, {
-          id: Seeds.LEAGUE_USER_SEED,
+        !(await repository.findOne({
+          where: {
+            id: Seeds.LEAGUE_USER_SEED,
+          },
         }))
       ) {
         await this.entityManager.transaction(
@@ -78,8 +83,10 @@ export class SeedingMiddleware implements NestMiddleware {
 
       // LEAGUE_ROOM_SEED
       if (
-        !(await this.entityManager.findOne(SeedingEntity, {
-          id: Seeds.LEAGUE_ROOM_SEED,
+        !(await repository.findOne({
+          where: {
+            id: Seeds.LEAGUE_ROOM_SEED,
+          },
         }))
       ) {
         await this.entityManager.transaction(

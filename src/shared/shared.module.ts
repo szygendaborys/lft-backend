@@ -1,7 +1,6 @@
-import { NotificationMedium } from './notification/notification.medium';
 import { NotificationModule } from './notification/notification.module';
 import { CustomLogger } from './loggers/custom.logger';
-import { Global, HttpModule, Module, Logger } from '@nestjs/common';
+import { Global, Module, Logger } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { RouterModule } from 'nest-router';
 import routes from '../shared/routes';
@@ -10,6 +9,7 @@ import { SendgridMailer } from './mailer/sendgrid/sendgrid.mailer';
 import { PlainToClassSerializer } from './serializer/plain-to-class.serializer';
 import { AppConfig } from './services/app.config';
 import { AppConfigModule } from './services/appConfig.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Global()
 @Module({

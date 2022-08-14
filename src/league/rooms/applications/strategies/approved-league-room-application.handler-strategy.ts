@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, getConnection } from 'typeorm';
+import { EntityManager, DataSource } from 'typeorm';
 import { LeagueRoom } from '../../league-room.entity';
 import { LeagueRoomApplication } from '../league-room-application.entity';
 import { LeagueRoomApplicationHandlerStrategy } from './league-room-application.handler-strategy';
 
 @Injectable()
 export class ApprovedLeagueRoomApplicationHandlerStrategy
-  implements LeagueRoomApplicationHandlerStrategy {
+  implements LeagueRoomApplicationHandlerStrategy
+{
+  constructor(private readonly dataSource: DataSource) {}
+
   async handle(leagueRoomApplication: LeagueRoomApplication): Promise<void> {
     leagueRoomApplication.approveApplication();
 
     const { room } = leagueRoomApplication;
 
-    await getConnection()
+    await this.dataSource
       .createEntityManager()
       .transaction(async (entityManager: EntityManager) => {
         await entityManager

@@ -1,12 +1,12 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
   compileTestingModule,
   init,
   makeRequest,
+  testDataSource,
 } from '../../../../test/test.module';
 import { saveUserGames } from '../../../../test/utils/games.utils';
 import {
@@ -227,14 +227,18 @@ describe('League room application integration tests', () => {
           demandedPosition: RIOT_API_POSITIONS.MIDDLE,
         });
 
-      const savedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne({
-        where: {
-          leagueUser,
-          room: leagueRoom,
-        },
-      });
+      const savedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({
+          where: {
+            leagueUser: {
+              id: leagueUser.id,
+            },
+            room: {
+              id: leagueRoom.id,
+            },
+          },
+        });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(savedApplication).toBeDefined();
@@ -261,13 +265,15 @@ describe('League room application integration tests', () => {
           demandedPosition: RIOT_API_POSITIONS.MIDDLE,
         });
 
-      const totalApplications = await getRepository(
-        LeagueRoomApplication,
-      ).count({
-        where: {
-          room: leagueRoom,
-        },
-      });
+      const totalApplications = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .count({
+          where: {
+            room: {
+              id: leagueRoom.id,
+            },
+          },
+        });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(totalApplications).toBe(2);

@@ -1,5 +1,4 @@
 import * as faker from 'faker';
-import { getConnection, getRepository } from 'typeorm';
 import { v4 } from 'uuid';
 import {
   RIOT_API_POSITIONS,
@@ -9,6 +8,7 @@ import { LeagueRoomApplication } from '../../src/league/rooms/applications/leagu
 import { LEAGUE_ROOM_APPLICATION_STATUS } from '../../src/league/rooms/applications/league-room-applications.config';
 import { LeagueRoom } from '../../src/league/rooms/league-room.entity';
 import { LeagueUser } from '../../src/league/users/league-user.entity';
+import { testDataSource } from '../test.module';
 import { createUserGames } from './games.utils';
 import { randomEnum } from './test.utils';
 
@@ -26,7 +26,7 @@ export function createLeagueUser(opts?: Partial<LeagueUser>): LeagueUser {
 export async function saveLeagueUser(
   opts?: Partial<LeagueUser>,
 ): Promise<LeagueUser> {
-  return getConnection().getRepository(LeagueUser).save(createLeagueUser(opts));
+  return testDataSource.getRepository(LeagueUser).save(createLeagueUser(opts));
 }
 
 export function createLeagueRoomApplication(
@@ -56,7 +56,7 @@ export async function saveLeagueRoomApplication(
 
   const room = opts?.room ?? (await saveLeagueRoom());
 
-  return getRepository(LeagueRoomApplication).save(
+  return testDataSource.getRepository(LeagueRoomApplication).save(
     createLeagueRoomApplication({
       leagueUser,
       room,
@@ -82,7 +82,7 @@ export async function saveLeagueRoom(
     owner?: LeagueUser;
   },
 ): Promise<LeagueRoom> {
-  const room = await getRepository(LeagueRoom).save(
+  const room = await testDataSource.getRepository(LeagueRoom).save(
     createLeagueRoom({
       ...opts,
     }),

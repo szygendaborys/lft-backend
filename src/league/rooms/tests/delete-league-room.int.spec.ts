@@ -1,12 +1,12 @@
 import { INestApplication, HttpStatus } from '@nestjs/common';
 import * as faker from 'faker';
-import { getRepository } from 'typeorm';
 import {
   compileTestingModule,
   init,
   clearSchema,
   makeRequest,
   authHeaderJwt,
+  testDataSource,
 } from '../../../../test/test.module';
 import { saveUserGames } from '../../../../test/utils/games.utils';
 import {
@@ -114,10 +114,12 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const deletedRoom = await getRepository(LeagueRoom).findOne();
+      const deletedRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
-      expect(deletedRoom).toBeUndefined();
+      expect(deletedRoom).toBeNull();
     });
 
     it('204 - all approved applications are left', async () => {
@@ -126,9 +128,9 @@ describe('Remove league room integration tests', () => {
         owner: leagueUser,
       });
 
-      const ownerApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne();
+      const ownerApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: {} });
 
       const rejectedApplication = await saveLeagueRoomApplication({
         room: leagueRoom,
@@ -143,9 +145,9 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const leftApplications = await getRepository(
-        LeagueRoomApplication,
-      ).find();
+      const leftApplications = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .find();
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(leftApplications).toHaveLength(2);
@@ -180,9 +182,9 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const rejectedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(pendingApplication.id);
+      const rejectedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: pendingApplication.id } });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(rejectedApplication).toMatchObject({
@@ -231,12 +233,13 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const savedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(application.id);
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne(
-        leagueRoom.id,
-      );
+      const savedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: application.id } });
+
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({ where: { id: leagueRoom.id } });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedApplication).toMatchObject({
@@ -277,13 +280,13 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const unchangedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(notRejectedApplication.id);
+      const unchangedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: notRejectedApplication.id } });
 
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne(
-        leagueRoom.id,
-      );
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({ where: { id: leagueRoom.id } });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(
@@ -324,9 +327,9 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const unchangedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(notRejectedApplication.id);
+      const unchangedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: notRejectedApplication.id } });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(unchangedApplication).toMatchObject({
@@ -349,10 +352,12 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const deletedRoom = await getRepository(LeagueRoom).findOne();
+      const deletedRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
-      expect(deletedRoom).toBeUndefined();
+      expect(deletedRoom).toBeNull();
     });
 
     it('204 - is league room owner = all approved applications are left', async () => {
@@ -361,9 +366,9 @@ describe('Remove league room integration tests', () => {
         owner: leagueUser,
       });
 
-      const ownerApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne();
+      const ownerApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: {} });
 
       const rejectedApplication = await saveLeagueRoomApplication({
         room: leagueRoom,
@@ -378,9 +383,9 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const leftApplications = await getRepository(
-        LeagueRoomApplication,
-      ).find();
+      const leftApplications = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .find();
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(leftApplications).toHaveLength(2);
@@ -415,9 +420,9 @@ describe('Remove league room integration tests', () => {
           }),
         );
 
-      const rejectedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(pendingApplication.id);
+      const rejectedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: pendingApplication.id } });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(rejectedApplication).toMatchObject({

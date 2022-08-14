@@ -3,7 +3,7 @@ import * as faker from 'faker';
 
 export const createTokenPayload = (): TokenPayloadDto => {
   return {
-    expiresIn: faker.datatype.number(),
+    expiresAt: faker.datatype.number(),
     token: faker.datatype.string(),
   };
 };

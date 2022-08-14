@@ -4,7 +4,6 @@ import { NotificationEntity } from './../shared/notification/notification.entity
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as faker from 'faker';
-import { getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
@@ -12,6 +11,7 @@ import {
   init,
   makeRequest,
   refreshHeaderJwt,
+  testDataSource,
 } from '../../test/test.module';
 import { RolesChecker } from '../../test/utils/roles.utils';
 import { composeWithBaseUrl } from '../../test/utils/test.utils';
@@ -137,8 +137,12 @@ describe('User integration tests', () => {
       };
       const res = await makeRequest(app).post(`${ROUTE}`).send(given);
 
-      const savedUser = await getRepository(User).findOne();
-      const savedGames = await getRepository(UserGames).findOne();
+      const savedUser = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
+      const savedGames = await testDataSource
+        .getRepository(UserGames)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(res.body.data).toMatchObject({
@@ -346,7 +350,9 @@ describe('User integration tests', () => {
         )
         .send(given);
 
-      const { password } = await getRepository(User).findOne();
+      const { password } = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(bcrypt.compareSync(given.password, password)).toBeTruthy();
@@ -372,7 +378,9 @@ describe('User integration tests', () => {
         )
         .send(given);
 
-      const { username } = await getRepository(User).findOne();
+      const { username } = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(username).toBe(user.username);
@@ -424,7 +432,9 @@ describe('User integration tests', () => {
         username: user.username,
       });
 
-      const userWithVerificationCode = await getRepository(User).findOne();
+      const userWithVerificationCode = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(mailer.sendMail).toHaveBeenCalledWith({
@@ -443,9 +453,12 @@ describe('User integration tests', () => {
         username: user.username,
       });
 
-      const notification = await getRepository(NotificationEntity).findOne({
-        relations: ['user'],
-      });
+      const notification = await testDataSource
+        .getRepository(NotificationEntity)
+        .findOne({
+          where: {},
+          relations: ['user'],
+        });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(notification).toMatchObject({
@@ -526,7 +539,9 @@ describe('User integration tests', () => {
         newPassword: faker.random.word(),
       });
 
-      const notChangedUser = await getRepository(User).findOne();
+      const notChangedUser = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.BAD_REQUEST);
       expect(notChangedUser.password).toBe(user.password);
@@ -542,7 +557,9 @@ describe('User integration tests', () => {
         newPassword: faker.random.word(),
       });
 
-      const notChangedUser = await getRepository(User).findOne();
+      const notChangedUser = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.BAD_REQUEST);
       expect(notChangedUser.password).toBe(user.password);
@@ -561,7 +578,9 @@ describe('User integration tests', () => {
         verificationCode,
       });
 
-      const changedUser = await getRepository(User).findOne();
+      const changedUser = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(changedUser.password).not.toBe(user.password);
@@ -582,7 +601,9 @@ describe('User integration tests', () => {
         verificationCode,
       });
 
-      const changedUser = await getRepository(User).findOne();
+      const changedUser = await testDataSource
+        .getRepository(User)
+        .findOne({ where: {} });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(changedUser.password).not.toBe(user.password);

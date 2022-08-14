@@ -7,13 +7,19 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersSerializer } from './users.serializer';
 import { UserGamesRepository } from '../games/userGames.repository';
 import { UserGamesSerializer } from '../games/serializers/user.games.serializer';
+import { User } from './user.entity';
+import { UserGames } from '../games/userGames.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserRepository, UserGamesRepository]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User, UserGames]), AuthModule],
   controllers: [UsersController],
-  providers: [UsersService, UsersSerializer, UserGamesSerializer],
+  providers: [
+    UsersService,
+    UsersSerializer,
+    UserGamesSerializer,
+    UserRepository,
+    UserGamesRepository,
+  ],
+  exports: [UserGamesRepository, UserRepository],
 })
 export class UserModule {}
