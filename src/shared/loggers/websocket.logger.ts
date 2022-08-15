@@ -1,6 +1,6 @@
+import { WsException } from '@nestjs/websockets';
 import { Injectable, Logger } from '@nestjs/common';
 import { inspect } from 'util';
-import { Method } from 'axios';
 
 @Injectable()
 export class WebsocketLogger {
@@ -8,5 +8,9 @@ export class WebsocketLogger {
 
   logEvent(event: string): void {
     this.logger.log(`[WS_EVENT_TRIGGERED]: ${event}`);
+  }
+
+  logError(error: WsException): void {
+    this.logger.error(`[WS_EXCEPTION]: ${inspect(error)}`);
   }
 }
