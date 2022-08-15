@@ -33,7 +33,6 @@ import { AppConfig } from '../src/shared/services/app.config';
 import { SharedModule } from '../src/shared/shared.module';
 import { User } from '../src/users/user.entity';
 import { UserSubscriber } from '../src/users/user.subscriber';
-import { usersContextMiddleware } from '../src/users/users-context.middleware';
 import { RolesChecker } from './utils/roles.utils';
 import { TestAuthGuardJwt, TEST_SECRET } from './utils/test.auth';
 import { PaginatedResponseInterceptor } from '../src/shared/interceptors/paginated-response.interceptor';
@@ -151,9 +150,6 @@ export async function init(
   const app = moduleFixture.createNestApplication();
 
   const reflector = app.get(Reflector);
-
-  const appConfig = app.select(SharedModule).get(AppConfig);
-  app.use(usersContextMiddleware(appConfig));
 
   app.useGlobalFilters(
     new HttpExceptionFilter(reflector),

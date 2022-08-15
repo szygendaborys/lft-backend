@@ -11,9 +11,11 @@ describe('JWT unit tests', () => {
       secret: faker.random.word(),
     },
   } as AppConfig;
-  const mockUserRepository = ({
+
+  const mockUserRepository = {
     findOne: jest.fn(),
-  } as unknown) as UserRepository;
+  } as unknown as UserRepository;
+
   describe('strategy unit tests', () => {
     let strategy: JwtStrategy;
 

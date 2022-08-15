@@ -127,7 +127,10 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: 'User was not found',
   })
-  async updateOne(@Body() updateUserDto: UpdateUserDto): Promise<void> {
-    await this.userService.update(updateUserDto);
+  async updateOne(
+    @Body() updateUserDto: UpdateUserDto,
+    @AuthUser() user: User,
+  ): Promise<void> {
+    await this.userService.update(updateUserDto, user.id);
   }
 }

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { UserGamesNotFoundException } from '../../games/userGamesNotFound.exception';
 import { UserRepository } from '../../users/user.repository';
 import { UserNotFoundException } from '../../users/user-not-found.exception';
-import { UsersContext } from '../../users/users.context';
 import { RiotLeagueUserNotFoundException } from '../riotApi/riot-league-user-not-found.exception';
 import { RiotApiService } from '../riotApi/riotApi.service';
 import { CreateLeagueUserDto } from './dto/create-league-user.dto';
@@ -21,14 +20,15 @@ export class LeagueUsersService {
     private readonly usersRepository: UserRepository,
   ) {}
 
-  async saveOne({
-    summonerName,
-    region,
-    mainPosition,
-    secondaryPosition,
-  }: CreateLeagueUserDto): Promise<LeagueUser> {
-    const { userId } = UsersContext.get();
-
+  async saveOne(
+    {
+      summonerName,
+      region,
+      mainPosition,
+      secondaryPosition,
+    }: CreateLeagueUserDto,
+    userId: string,
+  ): Promise<LeagueUser> {
     const [{ id: summonerId }, user] = await Promise.all([
       this.riotApiService.fetchAccount(region, summonerName),
       this.usersRepository.findOneById(userId),
@@ -66,8 +66,10 @@ export class LeagueUsersService {
     return await this.leagueUserRepository.saveOne(leagueUser);
   }
 
-  async updateOne(updateLeagueUserDto: UpdateLeagueUserDto): Promise<void> {
-    const { userId } = UsersContext.get();
+  async updateOne(
+    updateLeagueUserDto: UpdateLeagueUserDto,
+    userId: string,
+  ): Promise<void> {
     const leagueUser = await this.leagueUserRepository.findByUserId(userId);
 
     const updatedLeagueUser = new LeagueUser({
@@ -100,8 +102,7 @@ export class LeagueUsersService {
     await this.leagueUserRepository.saveOne(updatedLeagueUser);
   }
 
-  async deleteLeagueUserEntity(): Promise<void> {
-    const { userId } = UsersContext.get();
+  async deleteLeagueUserEntity(userId: string): Promise<void> {
     const leagueUser = await this.leagueUserRepository.findByUserId(userId);
 
     if (!leagueUser) {

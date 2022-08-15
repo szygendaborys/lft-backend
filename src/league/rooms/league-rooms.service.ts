@@ -1,10 +1,8 @@
 import { LeagueUserRepository } from './../users/league-user.repository';
 import { Injectable } from '@nestjs/common';
-import { UserGamesNotFoundException } from '../../games/userGamesNotFound.exception';
 import { PageDto } from '../../shared/page/page.dto';
 import { UserNotFoundException } from '../../users/user-not-found.exception';
 import { UserRepository } from '../../users/user.repository';
-import { UsersContext } from '../../users/users.context';
 import { LeagueUserNotFoundException } from '../users/exceptions/league-user-not-found.exception';
 import { LeagueRoomApplication } from './applications/league-room-application.entity';
 import { LEAGUE_ROOM_APPLICATION_STATUS } from './applications/league-room-applications.config';
@@ -30,11 +28,12 @@ export class LeagueRoomsService {
   async updateRoom({
     roomId,
     updateLeagueRoomDto,
+    userId,
   }: {
     roomId: string;
     updateLeagueRoomDto: UpdateLeagueRoomDto;
+    userId: string;
   }): Promise<void> {
-    const { userId } = UsersContext.get();
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -62,8 +61,8 @@ export class LeagueRoomsService {
 
   async createNewRoom(
     createLeagueRoomDto: CreateLeagueRoomDto,
+    userId: string,
   ): Promise<LeagueRoom> {
-    const { userId } = UsersContext.get();
     const { ownerPosition, demandedPositions } = createLeagueRoomDto;
 
     const leagueUser = await this.leagueUserRepository.findByUserId(userId);
@@ -94,8 +93,8 @@ export class LeagueRoomsService {
 
   async searchRooms(
     pageOptionsDto: SearchLeagueRoomQueryDto,
+    userId: string,
   ): Promise<PageDto<LeagueRoom>> {
-    const { userId } = UsersContext.get();
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -115,8 +114,8 @@ export class LeagueRoomsService {
 
   async searchUserRooms(
     pageOptionsDto: LeagueRoomQueryDto,
+    userId: string,
   ): Promise<PageDto<LeagueRoom>> {
-    const { userId } = UsersContext.get();
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -134,8 +133,13 @@ export class LeagueRoomsService {
     });
   }
 
-  async getRoomDetails(roomId: string): Promise<LeagueRoom> {
-    const { userId } = UsersContext.get();
+  async getRoomDetails({
+    roomId,
+    userId,
+  }: {
+    roomId: string;
+    userId: string;
+  }): Promise<LeagueRoom> {
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -159,8 +163,13 @@ export class LeagueRoomsService {
     return leagueRoom;
   }
 
-  async leaveRoom(roomId: string): Promise<void> {
-    const { userId } = UsersContext.get();
+  async leaveRoom({
+    roomId,
+    userId,
+  }: {
+    roomId: string;
+    userId: string;
+  }): Promise<void> {
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -196,8 +205,13 @@ export class LeagueRoomsService {
     await this.leagueRoomsRepository.saveRoom(leagueRoom);
   }
 
-  async removeRoom(roomId: string): Promise<void> {
-    const { userId } = UsersContext.get();
+  async removeRoom({
+    roomId,
+    userId,
+  }: {
+    roomId: string;
+    userId: string;
+  }): Promise<void> {
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 

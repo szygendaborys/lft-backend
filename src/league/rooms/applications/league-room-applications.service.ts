@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { UserNotFoundException } from '../../../users/user-not-found.exception';
 import { UserRepository } from '../../../users/user.repository';
-import { UsersContext } from '../../../users/users.context';
 import { RIOT_API_POSITIONS } from '../../riotApi/riotApi.config';
 import { LeagueUserNotFoundException } from '../../users/exceptions/league-user-not-found.exception';
 import { InvalidLeagueRoomPositionException } from '../invalid-league-room-position.exception';
@@ -27,11 +26,12 @@ export class LeagueRoomApplicationsService {
   async getRoomApplicationsByStatus({
     roomId,
     status,
+    userId,
   }: {
     roomId: string;
     status: LEAGUE_ROOM_APPLICATION_STATUS;
+    userId: string;
   }): Promise<LeagueRoomApplication[]> {
-    const { userId } = UsersContext.get();
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -43,12 +43,11 @@ export class LeagueRoomApplicationsService {
       throw new LeagueUserNotFoundException();
     }
 
-    const isRoomOwner = await this.leagueRoomApplicationsRepository.checkIfIsRoomOwner(
-      {
+    const isRoomOwner =
+      await this.leagueRoomApplicationsRepository.checkIfIsRoomOwner({
         roomId,
         leagueUser,
-      },
-    );
+      });
 
     if (!isRoomOwner) {
       throw new ForbiddenException();
@@ -63,11 +62,12 @@ export class LeagueRoomApplicationsService {
   async apply({
     roomId,
     demandedPosition,
+    userId,
   }: {
     roomId: string;
     demandedPosition: RIOT_API_POSITIONS;
+    userId: string;
   }): Promise<LeagueRoomApplication> {
-    const { userId } = UsersContext.get();
     const user = await this.usersRepository.findOneById(userId);
     const leagueUser = user?.games?.league_of_legends;
 
@@ -111,12 +111,13 @@ export class LeagueRoomApplicationsService {
     roomId,
     applicationId,
     updateLeagueRoomApplicationDto,
+    userId,
   }: {
     roomId: string;
     applicationId: string;
     updateLeagueRoomApplicationDto: UpdateLeagueRoomApplicationDto;
+    userId: string;
   }): Promise<void> {
-    const { userId } = UsersContext.get();
     const resolver = this.leagueRoomApplicationStrategyResolver.resolve(
       updateLeagueRoomApplicationDto,
     );
@@ -132,12 +133,11 @@ export class LeagueRoomApplicationsService {
       throw new LeagueUserNotFoundException();
     }
 
-    const leagueRoomApplication = await this.leagueRoomApplicationsRepository.findByRoomIdAndApplicationId(
-      {
+    const leagueRoomApplication =
+      await this.leagueRoomApplicationsRepository.findByRoomIdAndApplicationId({
         roomId,
         applicationId,
-      },
-    );
+      });
 
     if (!leagueRoomApplication) {
       throw new LeagueRoomApplicationNotFoundException();

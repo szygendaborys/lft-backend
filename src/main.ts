@@ -18,8 +18,6 @@ import { RolesGuard } from './roles/roles.guard';
 import * as als from 'async-local-storage';
 import { setupSwagger } from './setup.swagger';
 import { SharedModule } from './shared/shared.module';
-import { usersContextMiddleware } from './users/users-context.middleware';
-import { AppConfig } from './shared/services/app.config';
 import { PaginatedResponseInterceptor } from './shared/interceptors/paginated-response.interceptor';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
@@ -37,9 +35,6 @@ async function bootstrap() {
 
   app.use(helmet());
   app.use(morgan('combined'));
-
-  const appConfig = app.select(SharedModule).get(AppConfig);
-  app.use(usersContextMiddleware(appConfig));
 
   const reflector = app.get(Reflector);
 

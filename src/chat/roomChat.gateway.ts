@@ -1,6 +1,8 @@
+import { RoomChatMessageEntity } from './roomChatMessage.entity';
+import { RoomChatMessageService } from './roomChatMessage.service';
+import { RoomChatMessageSerializer } from './roomChatMessage.serializer';
 import { SocketWithUser } from '../shared/socketWithUser';
-import { ChatMessageInputDto } from './chatMessageInput.dto';
-import { ChatMessageDto } from './chatMessage.dto';
+import { RoomChatMessageInputDto } from './dto/roomChatMessageInput.dto';
 import {
   ConnectedSocket,
   MessageBody,
@@ -18,13 +20,17 @@ import { WsLeagueRoomDetailsGuard } from '../league/rooms/wsLeagueRoomDetails.gu
 })
 @UseGuards(JwtWebsocketsAuthGuard, WsLeagueRoomDetailsGuard)
 export class RoomChatGateway {
-  constructor(private readonly logger: WebsocketLogger) {}
+  constructor(
+    private readonly logger: WebsocketLogger,
+    private readonly roomChatMessageService: RoomChatMessageService,
+    private readonly roomChatMessageSerializer: RoomChatMessageSerializer,
+  ) {}
 
   @SubscribeMessage('subscribe_to_room')
   subscribeToRoom(
     @MessageBody() roomId: string,
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): void {
     this.logger.logEvent('subscribe_to_room');
 
     socket.join(roomId);
@@ -34,7 +40,7 @@ export class RoomChatGateway {
   unsubscribeFromRoom(
     @MessageBody() roomId: string,
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): void {
     this.logger.logEvent('unsubscribe_from_room');
 
     socket.leave(roomId);
@@ -42,19 +48,25 @@ export class RoomChatGateway {
 
   @SubscribeMessage('send_message')
   async listenForMessages(
-    @MessageBody() { message, roomId }: ChatMessageInputDto,
+    @MessageBody() { message, roomId }: RoomChatMessageInputDto,
     @ConnectedSocket() socket: SocketWithUser,
-  ) {
-    const { user } = socket;
+  ): Promise<void> {
     this.logger.logEvent('send_message');
+    const { user } = socket;
 
-    const receivedMessage: ChatMessageDto = {
-      author: user.username,
-      authorId: user.id,
+    const messageEntity = RoomChatMessageEntity.createMessage({
       message,
-      timestamp: Date.now(),
-    };
+      roomId,
+      user,
+    });
 
-    socket.broadcast.to(roomId).emit('receive_message', receivedMessage);
+    const serializedMessageOutput =
+      this.roomChatMessageSerializer.serialize(messageEntity);
+
+    socket.broadcast
+      .to(roomId)
+      .emit('receive_message', serializedMessageOutput);
+
+    await this.roomChatMessageService.saveMessage(messageEntity);
   }
 }

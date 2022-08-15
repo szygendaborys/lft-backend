@@ -1,13 +1,7 @@
+import { RoomChatMessageEntity } from './../chat/roomChatMessage.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import { DateUtils } from './../shared/date.utils';
-import {
-  Column,
-  DataTypeNotSupportedError,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { UserGames } from '../games/userGames.entity';
 import { NotificationEntity } from '../shared/notification/notification.entity';
 import { Roles } from '../roles/roles.config';
@@ -16,7 +10,6 @@ import { ONE_MINUTE_IN_S, TEN_SECONDS_IN_S } from '../shared/constants';
 import { TooManyRequestsException } from '../shared/exceptions/tooManyRequests.exception';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
-import { StringRegexOptions } from 'joi';
 import { UtilsService } from '../shared/utils.service';
 
 @Entity()
@@ -80,6 +73,11 @@ export class User extends AbstractEntity {
     cascade: true,
   })
   mails: NotificationEntity[];
+
+  @OneToMany(() => RoomChatMessageEntity, (cm) => cm.author, {
+    cascade: true,
+  })
+  roomChatMessages: RoomChatMessageEntity[];
 
   static createFromUserDto(createUserDto: CreateUserDto): User {
     return new User(createUserDto);

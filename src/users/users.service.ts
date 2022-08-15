@@ -9,7 +9,6 @@ import { LoginUserDto } from './dto/login.user.dto';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { UserGamesRepository } from '../games/userGames.repository';
-import { UsersContext } from './users.context';
 import { UserNotFoundException } from './user-not-found.exception';
 import { UpdateUserDto } from './dto/update.user.dto';
 import { ForgotPasswordDto } from './dto/forgot.password.dto';
@@ -56,8 +55,7 @@ export class UsersService {
     });
   }
 
-  async update(updateUserDto: UpdateUserDto): Promise<void> {
-    const { userId } = UsersContext.get();
+  async update(updateUserDto: UpdateUserDto, userId: string): Promise<void> {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
