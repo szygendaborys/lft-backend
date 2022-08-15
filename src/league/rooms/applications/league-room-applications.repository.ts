@@ -68,6 +68,25 @@ export class LeagueRoomApplicationsRepository {
     return !!roomOwner;
   }
 
+  async checkIfJoinedRoom({
+    roomId,
+    leagueUser,
+  }: {
+    roomId: string;
+    leagueUser: LeagueUser;
+  }): Promise<boolean> {
+    const joinedRoom = await this.repository
+      .createQueryBuilder('lra')
+      .where('lra.room = :roomId', { roomId })
+      .andWhere('lra.leagueUser = :leagueUserId AND lra.status = :status', {
+        leagueUserId: leagueUser.id,
+        status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
+      })
+      .getOne();
+
+    return !!joinedRoom;
+  }
+
   async findByApplicationStatus({
     roomId,
     status,

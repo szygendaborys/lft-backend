@@ -1,3 +1,5 @@
+import { PAGINATION_ROOM_CHAT_MESSAGE_SERIALIZER } from './roomChatMessage.config';
+import { RoomChatMessageController } from './roomChatMessage.controller';
 import { RoomChatMessageEntity } from './roomChatMessage.entity';
 import { RoomChatMessageSerializer } from './roomChatMessage.serializer';
 import { RoomChatMessagesRepository } from './roomChatMessages.repository';
@@ -10,6 +12,7 @@ import { UserRepository } from '../users/user.repository';
 import { LeagueRoomApplication } from './../league/rooms/applications/league-room-application.entity';
 import { RoomChatGateway } from './roomChat.gateway';
 import { RoomChatMessageService } from './roomChatMessage.service';
+import { AbstractPaginationSerializer } from '../shared/serializer/abstract-pagination.serializer';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { RoomChatMessageService } from './roomChatMessage.service';
       RoomChatMessageEntity,
     ]),
   ],
+  controllers: [RoomChatMessageController],
   providers: [
     RoomChatGateway,
     WebsocketLogger,
@@ -27,6 +31,13 @@ import { RoomChatMessageService } from './roomChatMessage.service';
     RoomChatMessagesRepository,
     RoomChatMessageSerializer,
     RoomChatMessageService,
+    {
+      provide: PAGINATION_ROOM_CHAT_MESSAGE_SERIALIZER,
+      useFactory: (roomChatMessageSerializer: RoomChatMessageSerializer) => {
+        return new AbstractPaginationSerializer(roomChatMessageSerializer);
+      },
+      inject: [RoomChatMessageSerializer],
+    },
   ],
 })
 export class ChatModule {}
