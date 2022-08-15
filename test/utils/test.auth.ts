@@ -11,7 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { JwtUser } from '../../src/auth/interfaces/jwtUser';
 import { User } from '../../src/users/user.entity';
-import { UsersContext } from '../../src/users/users.context';
 import { testDataSource } from '../test.module';
 
 export const TEST_SECRET = 'test_secret';
@@ -48,9 +47,6 @@ export class TestAuthGuardJwt implements CanActivate {
     if (!user) throw new UnauthorizedException();
 
     req.user = user;
-
-    console.log(user.id);
-    UsersContext.set(user.id);
 
     return true;
   }

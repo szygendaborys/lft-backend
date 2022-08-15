@@ -1,3 +1,4 @@
+import { User } from './../../users/user.entity';
 import {
   Body,
   Controller,
@@ -22,6 +23,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AuthUser } from '../../auth/authUser.decorator';
 import { Roles } from '../../roles/roles.config';
 import { Role } from '../../roles/roles.decorator';
 import { PageDto } from '../../shared/page/page.dto';
@@ -65,9 +67,12 @@ export class LeagueRoomsController {
     description: 'User, games or riot league account not found',
   })
   @Role(Roles.USER)
-  async createNewRoom(@Body() createLeagueRoomDto: CreateLeagueRoomDto) {
+  async createNewRoom(
+    @Body() createLeagueRoomDto: CreateLeagueRoomDto,
+    @AuthUser() user: User,
+  ) {
     return this.leagueRoomsSerializer.serialize(
-      await this.leagueRoomsService.createNewRoom(createLeagueRoomDto),
+      await this.leagueRoomsService.createNewRoom(createLeagueRoomDto, user.id),
     );
   }
 
@@ -82,9 +87,10 @@ export class LeagueRoomsController {
   @Role(Roles.USER)
   async searchUserRooms(
     @Query() pageOptionsDto: LeagueRoomQueryDto,
+    @AuthUser() user: User,
   ): Promise<PageDto<LeagueRoomDto>> {
     return this.paginationLeagueRoomsSerializer.serialize(
-      await this.leagueRoomsService.searchUserRooms(pageOptionsDto),
+      await this.leagueRoomsService.searchUserRooms(pageOptionsDto, user.id),
     );
   }
 
@@ -101,10 +107,12 @@ export class LeagueRoomsController {
   async updateRoomDetails(
     @Param('roomId', ParseUUIDPipe) roomId: string,
     @Body() updateLeagueRoomDto: UpdateLeagueRoomDto,
+    @AuthUser() user: User,
   ): Promise<void> {
     await this.leagueRoomsService.updateRoom({
       roomId,
       updateLeagueRoomDto,
+      userId: user.id,
     });
   }
 
@@ -118,9 +126,10 @@ export class LeagueRoomsController {
   @Role(Roles.USER)
   async getRoomDetails(
     @Param('roomId', ParseUUIDPipe) roomId: string,
+    @AuthUser() user: User,
   ): Promise<LeagueRoomDetailsDto> {
     return this.leagueRoomDetailsSerializer.serialize(
-      await this.leagueRoomsService.getRoomDetails(roomId),
+      await this.leagueRoomsService.getRoomDetails({ roomId, userId: user.id }),
     );
   }
 
@@ -135,9 +144,10 @@ export class LeagueRoomsController {
   @Role(Roles.USER)
   async searchLeagueRooms(
     @Query() pageOptionsDto: SearchLeagueRoomQueryDto,
+    @AuthUser() user: User,
   ): Promise<PageDto<LeagueRoomDto>> {
     return this.paginationLeagueRoomsSerializer.serialize(
-      await this.leagueRoomsService.searchRooms(pageOptionsDto),
+      await this.leagueRoomsService.searchRooms(pageOptionsDto, user.id),
     );
   }
 
@@ -149,8 +159,9 @@ export class LeagueRoomsController {
   @Role(Roles.USER)
   async leaveLeagueRoom(
     @Param('roomId', ParseUUIDPipe) roomId: string,
+    @AuthUser() user: User,
   ): Promise<void> {
-    await this.leagueRoomsService.leaveRoom(roomId);
+    await this.leagueRoomsService.leaveRoom({ roomId, userId: user.id });
   }
 
   @Delete(':roomId')
@@ -162,7 +173,8 @@ export class LeagueRoomsController {
   @RoomOwnerOnly()
   async removeLeagueRoom(
     @Param('roomId', ParseUUIDPipe) roomId: string,
+    @AuthUser() user: User,
   ): Promise<void> {
-    await this.leagueRoomsService.removeRoom(roomId);
+    await this.leagueRoomsService.removeRoom({ roomId, userId: user.id });
   }
 }

@@ -5,7 +5,6 @@ import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AppConfig } from '../shared/services/app.config';
 import { UserRepository } from '../users/user.repository';
-import { UsersContext } from '../users/users.context';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -27,16 +26,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const user = await this.userRepository.findOne({ where: { id } });
 
-    console.log(user);
-    console.log(id);
-
     if (!user) {
       throw new UnauthorizedException();
     }
 
     req.user = user;
-
-    UsersContext.set(user.id);
 
     return user;
   }

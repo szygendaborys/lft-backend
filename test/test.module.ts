@@ -17,7 +17,6 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as als from 'async-local-storage';
 import * as request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AuthModule } from '../src/auth/auth.module';
@@ -33,7 +32,6 @@ import { AppConfig } from '../src/shared/services/app.config';
 import { SharedModule } from '../src/shared/shared.module';
 import { User } from '../src/users/user.entity';
 import { UserSubscriber } from '../src/users/user.subscriber';
-import { usersContextMiddleware } from '../src/users/users-context.middleware';
 import { RolesChecker } from './utils/roles.utils';
 import { TestAuthGuardJwt, TEST_SECRET } from './utils/test.auth';
 import { PaginatedResponseInterceptor } from '../src/shared/interceptors/paginated-response.interceptor';
@@ -112,8 +110,6 @@ export function createTestingModule(modules: any[]): TestingModuleBuilder {
     ],
   });
 
-  als.enable();
-
   testingModule.overrideGuard(AuthGuard('jwt')).useClass(TestAuthGuardJwt);
   testingModule.overrideProvider(HttpService).useValue({
     request: jest.fn(() => {
@@ -151,9 +147,6 @@ export async function init(
   const app = moduleFixture.createNestApplication();
 
   const reflector = app.get(Reflector);
-
-  const appConfig = app.select(SharedModule).get(AppConfig);
-  app.use(usersContextMiddleware(appConfig));
 
   app.useGlobalFilters(
     new HttpExceptionFilter(reflector),
