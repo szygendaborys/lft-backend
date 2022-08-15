@@ -113,8 +113,10 @@ export class UsersController {
     type: UserDto,
     description: 'A single user dto',
   })
-  async findOne(): Promise<UserDto> {
-    return this.userSerializer.serialize(await this.userService.findUser());
+  async findOne(@AuthUser() user: User): Promise<UserDto> {
+    return this.userSerializer.serialize(
+      await this.userService.findUser(user.id),
+    );
   }
 
   @Patch('me')

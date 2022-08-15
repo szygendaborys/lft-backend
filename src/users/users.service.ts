@@ -69,8 +69,7 @@ export class UsersService {
     await this.userRepository.save(user);
   }
 
-  async findUser(): Promise<User> {
-    const { userId } = UsersContext.get();
+  async findUser(userId: string): Promise<User> {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
