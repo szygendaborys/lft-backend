@@ -17,7 +17,6 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as als from 'async-local-storage';
 import * as request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AuthModule } from '../src/auth/auth.module';
@@ -110,8 +109,6 @@ export function createTestingModule(modules: any[]): TestingModuleBuilder {
       },
     ],
   });
-
-  als.enable();
 
   testingModule.overrideGuard(AuthGuard('jwt')).useClass(TestAuthGuardJwt);
   testingModule.overrideProvider(HttpService).useValue({

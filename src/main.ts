@@ -15,16 +15,12 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/badRequest.filter';
 import { QueryFailedFilter } from './shared/filters/queryFailed.error';
 import { RolesGuard } from './roles/roles.guard';
-import * as als from 'async-local-storage';
 import { setupSwagger } from './setup.swagger';
 import { SharedModule } from './shared/shared.module';
 import { PaginatedResponseInterceptor } from './shared/interceptors/paginated-response.interceptor';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
 async function bootstrap() {
-  als.enable();
-  als.enableLinkedTop();
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
