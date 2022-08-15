@@ -1,3 +1,4 @@
+import { RoomChatMessageEntity } from './../src/chat/roomChatMessage.entity';
 import { NotificationEntity } from './../src/shared/notification/notification.entity';
 import '../src/boilerplate.polyfill';
 // import '../src/boilerplate.polyfill'; must be the first import
@@ -192,6 +193,11 @@ export const jwtService = new JwtService({
 });
 
 export async function clearSchema() {
+  await testDataSource
+    .createQueryBuilder()
+    .delete()
+    .from(RoomChatMessageEntity)
+    .execute();
   await testDataSource
     .createQueryBuilder()
     .delete()
