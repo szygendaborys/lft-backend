@@ -13,7 +13,7 @@ import {
   ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../roles/roles.config';
 import { Role } from '../roles/roles.decorator';
 import { RoomChatMessageDto } from './dto/roomChatMessage.dto';
@@ -22,6 +22,7 @@ import { PageDto } from '../shared/page/page.dto';
 import { AbstractPaginationSerializer } from '../shared/serializer/abstract-pagination.serializer';
 
 @Controller('/rooms/chat/messages')
+@ApiTags('chat', 'websockets', 'rooms')
 export class RoomChatMessageController {
   constructor(
     private readonly roomChatMessageService: RoomChatMessageService,
