@@ -1,7 +1,8 @@
+import '../src/boilerplate.polyfill';
+// must be the first import
 import { RoomChatMessageEntity } from './../src/chat/roomChatMessage.entity';
 import { NotificationEntity } from './../src/shared/notification/notification.entity';
 import '../src/boilerplate.polyfill';
-// import '../src/boilerplate.polyfill'; must be the first import
 import {
   ClassSerializerInterceptor,
   Global,
@@ -41,6 +42,7 @@ import { LeagueRoomApplication } from '../src/league/rooms/applications/league-r
 import { Mailer } from '../src/shared/mailer/mailer';
 import * as faker from 'faker';
 import { HttpService } from '@nestjs/axios';
+import { Ticket } from '../src/ticket/ticket.entity';
 
 export const TO_PROMISE = 'toPromise';
 export let testDataSource: DataSource;
@@ -213,4 +215,5 @@ export async function clearSchema() {
   await testDataSource.createQueryBuilder().delete().from(UserGames).execute();
   await testDataSource.createQueryBuilder().delete().from(LeagueUser).execute();
   await testDataSource.createQueryBuilder().delete().from(GameConfig).execute();
+  await testDataSource.createQueryBuilder().delete().from(Ticket).execute();
 }
