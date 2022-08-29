@@ -1,6 +1,6 @@
-export enum TicketType {
-    Bug,
-    Request,
-    Question,
-    Suggestion,
-}
+    export enum TicketType {
+        Bug,
+        Request,
+        Question,
+        Suggestion,
+    }
