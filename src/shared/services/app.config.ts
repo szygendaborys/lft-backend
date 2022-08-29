@@ -24,6 +24,9 @@ export class AppConfig {
     from: string;
     templates: ReadonlyMap<NotificationTypes, string>;
   };
+  sentry: {
+    dsn: string;
+  };
 
   static load(configService: ConfigService): AppConfig {
     return {
@@ -53,6 +56,9 @@ export class AppConfig {
             configService.get('RESET_PASSWORD_CONFIRMATION_LINK_TEMPLATE'),
           ],
         ]),
+      },
+      sentry: {
+        dsn: configService.get('SENTRY_DSN'),
       },
     };
   }

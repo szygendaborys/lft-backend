@@ -1,11 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { version } from 'package.json';
 
 export function setupSwagger(app: INestApplication): void {
   const options = new DocumentBuilder()
     .setTitle('Looking For Team API')
-    .setVersion(version)
+    .setVersion('1.0')
     .addBearerAuth()
     .build();
 
