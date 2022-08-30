@@ -113,8 +113,10 @@ export class UsersController {
     type: UserDto,
     description: 'A single user dto',
   })
-  async findOne(): Promise<UserDto> {
-    return this.userSerializer.serialize(await this.userService.findUser());
+  async findOne(@AuthUser() user: User): Promise<UserDto> {
+    return this.userSerializer.serialize(
+      await this.userService.findUser(user.id),
+    );
   }
 
   @Patch('me')
@@ -125,7 +127,10 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: 'User was not found',
   })
-  async updateOne(@Body() updateUserDto: UpdateUserDto): Promise<void> {
-    await this.userService.update(updateUserDto);
+  async updateOne(
+    @Body() updateUserDto: UpdateUserDto,
+    @AuthUser() user: User,
+  ): Promise<void> {
+    await this.userService.update(updateUserDto, user.id);
   }
 }

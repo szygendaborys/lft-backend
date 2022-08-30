@@ -1,12 +1,12 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
   compileTestingModule,
   init,
   makeRequest,
+  testDataSource,
 } from '../../../../test/test.module';
 import { saveUserGames } from '../../../../test/utils/games.utils';
 import {
@@ -265,13 +265,16 @@ describe('League room application integration tests', () => {
           toStatus: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
         });
 
-      const savedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(application.id);
+      const savedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: application.id } });
 
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
-        relations: ['applications'],
-      });
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedApplication).toMatchObject({
@@ -317,12 +320,16 @@ describe('League room application integration tests', () => {
           toStatus: LEAGUE_ROOM_APPLICATION_STATUS.REJECTED,
         });
 
-      const savedApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne(application.id);
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
-        relations: ['applications'],
-      });
+      const savedApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: { id: application.id } });
+
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedApplication).toMatchObject({

@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+
 export function randomEnum(entry: Record<string, any>) {
   const length = Object.keys(entry).length;
   const randomInt = faker.datatype.number({ min: 0, max: length - 1 });

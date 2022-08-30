@@ -1,6 +1,6 @@
+import { testDataSource } from './../../../test/test.module';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { getConnection, getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
@@ -250,9 +250,10 @@ describe('League users integration tests', () => {
         )
         .send(given);
 
-      const savedEntry = await getConnection()
-        .getRepository(UserGames)
-        .findOne({ relations: ['league_of_legends', 'user'] });
+      const savedEntry = await testDataSource.getRepository(UserGames).findOne({
+        where: {},
+        relations: ['league_of_legends', 'user'],
+      });
 
       expect(res.status).toBe(HttpStatus.CREATED);
       expect(savedEntry).toMatchObject({
@@ -260,7 +261,7 @@ describe('League users integration tests', () => {
           id: user.id,
         }),
         league_of_legends: {
-          summonerId: riotPlayerResponse.accountId,
+          summonerId: riotPlayerResponse.id,
           region: given.region,
           mainPosition: given.mainPosition,
           secondaryPosition: given.secondaryPosition,
@@ -445,9 +446,10 @@ describe('League users integration tests', () => {
         )
         .send(given);
 
-      const savedEntry = await getConnection()
-        .getRepository(UserGames)
-        .findOne({ relations: ['league_of_legends', 'user'] });
+      const savedEntry = await testDataSource.getRepository(UserGames).findOne({
+        where: {},
+        relations: ['league_of_legends', 'user'],
+      });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedEntry).toMatchObject({
@@ -455,7 +457,7 @@ describe('League users integration tests', () => {
           id: user.id,
         }),
         league_of_legends: {
-          summonerId: riotPlayerResponse.accountId,
+          summonerId: riotPlayerResponse.id,
           region: given.region,
           mainPosition: given.mainPosition,
           secondaryPosition: given.secondaryPosition,
@@ -522,16 +524,21 @@ describe('League users integration tests', () => {
           }),
         );
 
-      const deletedEntry = await getConnection()
+      const deletedEntry = await testDataSource
         .getRepository(LeagueUser)
-        .findOne();
+        .findOne({
+          where: {},
+        });
 
-      const persistedUserGames = await getRepository(UserGames).findOne({
-        relations: ['user', 'league_of_legends'],
-      });
+      const persistedUserGames = await testDataSource
+        .getRepository(UserGames)
+        .findOne({
+          where: {},
+          relations: ['user', 'league_of_legends'],
+        });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
-      expect(deletedEntry).toBeUndefined();
+      expect(deletedEntry).toBeNull();
       expect(persistedUserGames).toMatchObject({
         user: expect.objectContaining({
           id: user.id,

@@ -11,6 +11,7 @@ import modules from './shared/modules';
 import { AppConfig } from './shared/services/app.config';
 import { SharedModule } from './shared/shared.module';
 import { UserSubscriber } from './users/user.subscriber';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -53,6 +54,10 @@ import { UserSubscriber } from './users/user.subscriber';
         synchronize: true,
         logging: ['error'],
       }),
+      dataSourceFactory: async (options) => {
+        const dataSource = await new DataSource(options).initialize();
+        return dataSource;
+      },
     }),
     ...modules,
   ],

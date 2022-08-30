@@ -1,12 +1,7 @@
+import { RoomChatMessageEntity } from './../chat/roomChatMessage.entity';
+import { UnauthorizedException } from '@nestjs/common';
 import { DateUtils } from './../shared/date.utils';
-import {
-  Column,
-  DataTypeNotSupportedError,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { UserGames } from '../games/userGames.entity';
 import { NotificationEntity } from '../shared/notification/notification.entity';
 import { Roles } from '../roles/roles.config';
@@ -15,6 +10,7 @@ import { ONE_MINUTE_IN_S, TEN_SECONDS_IN_S } from '../shared/constants';
 import { TooManyRequestsException } from '../shared/exceptions/tooManyRequests.exception';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';
+import { UtilsService } from '../shared/utils.service';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -78,6 +74,11 @@ export class User extends AbstractEntity {
   })
   mails: NotificationEntity[];
 
+  @OneToMany(() => RoomChatMessageEntity, (cm) => cm.author, {
+    cascade: true,
+  })
+  roomChatMessages: RoomChatMessageEntity[];
+
   static createFromUserDto(createUserDto: CreateUserDto): User {
     return new User(createUserDto);
   }
@@ -87,9 +88,9 @@ export class User extends AbstractEntity {
     Object.assign(this, partial);
   }
 
-  update({ password }: UpdateUserDto): void {
+  async update({ password, oldPassword }: UpdateUserDto): Promise<void> {
     if (password) {
-      this.changePassword(password);
+      await this.changePassword({ password, oldPassword });
     }
   }
 
@@ -141,7 +142,26 @@ export class User extends AbstractEntity {
     return this.resetPasswordVerificationCode === verificationCode;
   }
 
-  changePassword(password: string): void {
+  async changePassword({
+    password,
+    oldPassword,
+  }: {
+    password: string;
+    oldPassword: string;
+  }): Promise<void> {
+    const isOldPasswordValid = await UtilsService.validateHash(
+      oldPassword,
+      this.password,
+    );
+
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException();
+    }
+
+    this.password = password;
+  }
+
+  changePasswordWithoutValidation(password: string): void {
     this.password = password;
   }
 }

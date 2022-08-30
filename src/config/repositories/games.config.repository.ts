@@ -1,9 +1,16 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { GameConfig } from '../entities/game.config.entity';
 
-@EntityRepository(GameConfig)
-export class GameConfigRepository extends Repository<GameConfig> {
+@Injectable()
+export class GameConfigRepository {
+  constructor(
+    @InjectRepository(GameConfig)
+    private readonly repository: Repository<GameConfig>,
+  ) {}
+
   async getActiveGames(): Promise<GameConfig[]> {
-    return this.find({ isActive: true });
+    return this.repository.find({ where: { isActive: true } });
   }
 }

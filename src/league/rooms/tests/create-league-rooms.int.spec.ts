@@ -1,11 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
   compileTestingModule,
   init,
   makeRequest,
+  testDataSource,
 } from '../../../../test/test.module';
 import { saveUserGames } from '../../../../test/utils/games.utils';
 import { saveLeagueUser } from '../../../../test/utils/league.utils';
@@ -189,12 +189,17 @@ describe('Create league rooms integration tests', () => {
       )
       .send(given);
 
-    const savedLeagueRoom = await getRepository(LeagueRoom).findOne();
-    const savedApplication = await getRepository(LeagueRoomApplication).findOne(
-      {
+    const savedLeagueRoom = await testDataSource
+      .getRepository(LeagueRoom)
+      .findOne({
+        where: {},
+      });
+    const savedApplication = await testDataSource
+      .getRepository(LeagueRoomApplication)
+      .findOne({
+        where: {},
         relations: ['leagueUser', 'room'],
-      },
-    );
+      });
 
     expect(res.status).toBe(HttpStatus.CREATED);
     expect(savedLeagueRoom).toMatchObject({
@@ -234,7 +239,11 @@ describe('Create league rooms integration tests', () => {
       )
       .send(given);
 
-    const savedLeagueRoom = await getRepository(LeagueRoom).findOne();
+    const savedLeagueRoom = await testDataSource
+      .getRepository(LeagueRoom)
+      .findOne({
+        where: {},
+      });
 
     expect(res.status).toBe(HttpStatus.CREATED);
     expect(savedLeagueRoom).toMatchObject({
@@ -242,6 +251,32 @@ describe('Create league rooms integration tests', () => {
       demandedPositions: given.demandedPositions,
       date: given.date,
       description: given.description,
+    });
+  });
+
+  it('201 - username should be returned', async () => {
+    const given = {
+      description: faker.datatype.string(),
+      region: randomEnum(RIOT_API_REGIONS),
+      demandedPositions: [RIOT_API_POSITIONS.SUPPORT],
+      date: faker.date.future(),
+      ownerPosition: RIOT_API_POSITIONS.MIDDLE,
+    } as CreateLeagueRoomDto;
+
+    const res = await makeRequest(app)
+      .post(getRoute())
+      .set(
+        authHeaderJwt({
+          id: user.id,
+        }),
+      )
+      .send(given);
+
+    expect(res.status).toBe(HttpStatus.CREATED);
+    expect(res.body.data).toMatchObject({
+      owner: {
+        username: user.username,
+      },
     });
   });
 });

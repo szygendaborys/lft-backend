@@ -7,7 +7,6 @@ import {
 import jwtDecode from 'jwt-decode';
 import { ExtractJwt } from 'passport-jwt';
 import { DateUtils } from '../shared/date.utils';
-import { UsersContext } from '../users/users.context';
 import { UserRepository } from './../users/user.repository';
 @Injectable()
 export class JwtRefreshGuard implements CanActivate {
@@ -39,8 +38,6 @@ export class JwtRefreshGuard implements CanActivate {
     }
 
     Object.assign(request, { user });
-
-    UsersContext.set(user.id);
 
     return true;
   }

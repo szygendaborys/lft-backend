@@ -15,9 +15,11 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AuthUser } from '../../auth/authUser.decorator';
 import { Roles } from '../../roles/roles.config';
 import { Role } from '../../roles/roles.decorator';
 import { PlainToClassSerializer } from '../../shared/serializer/plain-to-class.serializer';
+import { User } from '../../users/user.entity';
 import { CreateLeagueUserDto } from './dto/create-league-user.dto';
 import { LeagueUserDto } from './dto/league-user.dto';
 import { UpdateLeagueUserDto } from './dto/update-league-user.dto';
@@ -51,9 +53,13 @@ export class LeagueUsersController {
   @Role(Roles.USER)
   async saveOne(
     @Body() createLeagueUserDto: CreateLeagueUserDto,
+    @AuthUser() user: User,
   ): Promise<LeagueUserDto> {
     return this.leagueUsersSerializer.serialize({
-      payload: await this.leagueUsersService.saveOne(createLeagueUserDto),
+      payload: await this.leagueUsersService.saveOne(
+        createLeagueUserDto,
+        user.id,
+      ),
       classInstance: LeagueUserDto,
     });
   }
@@ -71,8 +77,9 @@ export class LeagueUsersController {
   @Role(Roles.USER)
   async updateOne(
     @Body() updateLeagueUserDto: UpdateLeagueUserDto,
+    @AuthUser() user: User,
   ): Promise<void> {
-    await this.leagueUsersService.updateOne(updateLeagueUserDto);
+    await this.leagueUsersService.updateOne(updateLeagueUserDto, user.id);
   }
 
   @Delete('me')
@@ -82,7 +89,7 @@ export class LeagueUsersController {
     description: 'User league entity not found',
   })
   @Role(Roles.USER)
-  async deleteLeagueUserEntity(): Promise<void> {
-    await this.leagueUsersService.deleteLeagueUserEntity();
+  async deleteLeagueUserEntity(@AuthUser() user: User): Promise<void> {
+    await this.leagueUsersService.deleteLeagueUserEntity(user.id);
   }
 }

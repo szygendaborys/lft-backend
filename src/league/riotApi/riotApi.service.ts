@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpService,
-  Injectable,
-  LoggerService,
-} from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { AppConfig } from '../../shared/services/app.config';
 import {
   RIOT_API_BASE_URL,
@@ -19,6 +13,7 @@ import {
 } from './dto/riotApiResponses.dto';
 import { HttpLogger } from '../../shared/loggers/http.logger';
 import { RiotApiUnavailableException } from './riot-api-unavailable.exception';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class RiotApiService {

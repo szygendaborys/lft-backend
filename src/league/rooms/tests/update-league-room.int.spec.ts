@@ -1,12 +1,12 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as faker from 'faker';
-import { getRepository } from 'typeorm';
 import {
   authHeaderJwt,
   clearSchema,
   compileTestingModule,
   init,
   makeRequest,
+  testDataSource,
 } from '../../../../test/test.module';
 import { saveUserGames } from '../../../../test/utils/games.utils';
 import {
@@ -240,9 +240,12 @@ describe('Update league room integration tests', () => {
         )
         .send(given);
 
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
-        relations: ['applications'],
-      });
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedLeagueRoom).toMatchObject({
@@ -299,12 +302,15 @@ describe('Update league room integration tests', () => {
         )
         .send(given);
 
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
-        relations: ['applications'],
-      });
-      const savedApplications = await getRepository(
-        LeagueRoomApplication,
-      ).find();
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
+      const savedApplications = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .find();
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedLeagueRoom).toMatchObject({
@@ -348,9 +354,9 @@ describe('Update league room integration tests', () => {
         owner: leagueUser,
       });
 
-      const previousOwnerApplication = await getRepository(
-        LeagueRoomApplication,
-      ).findOne();
+      const previousOwnerApplication = await testDataSource
+        .getRepository(LeagueRoomApplication)
+        .findOne({ where: {} });
 
       const ownerToBeApplication = await saveLeagueRoomApplication({
         room: leagueRoom,
@@ -370,9 +376,12 @@ describe('Update league room integration tests', () => {
         )
         .send(given);
 
-      const savedLeagueRoom = await getRepository(LeagueRoom).findOne({
-        relations: ['applications'],
-      });
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
 
       expect(res.status).toBe(HttpStatus.NO_CONTENT);
       expect(savedLeagueRoom).toMatchObject({
@@ -388,6 +397,55 @@ describe('Update league room integration tests', () => {
           }),
         ]),
       });
+    });
+
+    it('204 - removed demanding positions', async () => {
+      const leagueRoom = await saveLeagueRoom({
+        region: leagueUser.region,
+        applications: [],
+        demandedPositions: [RIOT_API_POSITIONS.SUPPORT],
+      });
+      await saveLeagueRoomApplication({
+        leagueUser,
+        room: leagueRoom,
+        isOwner: true,
+        appliedForPosition: RIOT_API_POSITIONS.ADC,
+        status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
+      });
+      await saveLeagueRoomApplication({
+        room: leagueRoom,
+        isOwner: false,
+        appliedForPosition: RIOT_API_POSITIONS.TOP,
+        status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
+      });
+
+      const given = {
+        demandedPositions: [],
+      };
+
+      const res = await makeRequest(app)
+        .patch(getRoute(leagueRoom.id))
+        .set(
+          authHeaderJwt({
+            id: user.id,
+          }),
+        )
+        .send(given);
+
+      const savedLeagueRoom = await testDataSource
+        .getRepository(LeagueRoom)
+        .findOne({
+          where: {},
+          relations: ['applications'],
+        });
+
+      expect(res.status).toBe(HttpStatus.NO_CONTENT);
+      expect(savedLeagueRoom).toMatchObject({
+        id: leagueRoom.id,
+        demandedPositions: given.demandedPositions,
+      });
+      expect(savedLeagueRoom.currentPlayers).toBe(2);
+      expect(savedLeagueRoom.requiredPlayers).toBe(2);
     });
   });
 });

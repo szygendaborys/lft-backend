@@ -15,6 +15,3 @@ do
 
     echo "$i"
 done
-
-# BASETBLS=`psql -h localhost -p 5432 -d $PGDB -t --command "SELECT string_agg(table_name, ',') FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'"`
-# psql -h localhost -p 5432 -U root lft_dev \

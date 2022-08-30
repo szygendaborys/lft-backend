@@ -1,13 +1,13 @@
 import * as faker from 'faker';
-import { getConnection } from 'typeorm';
 import { GameConfig } from '../../src/config/entities/game.config.entity';
 import { Games } from '../../src/games/games';
+import { testDataSource } from '../test.module';
 import { randomEnum } from './test.utils';
 
 export async function saveGameConfig(opts?: {
   isActive?: boolean;
 }): Promise<GameConfig> {
-  return getConnection().getRepository(GameConfig).save(createGameConfig(opts));
+  return testDataSource.getRepository(GameConfig).save(createGameConfig(opts));
 }
 
 export function createGameConfig(opts?: { isActive?: boolean }) {

@@ -1,3 +1,4 @@
+import { User } from './../../../users/user.entity';
 import {
   Body,
   Controller,
@@ -21,6 +22,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { AuthUser } from '../../../auth/authUser.decorator';
 import { Roles } from '../../../roles/roles.config';
 import { Role } from '../../../roles/roles.decorator';
 import { LeagueRoomGuard } from '../league-room-owner.guard';
@@ -31,6 +33,7 @@ import { LeagueRoomApplicationDto } from './dto/league-room-application.dto';
 import { UpdateLeagueRoomApplicationDto } from './dto/update-league-room-application.dto';
 import { LeagueRoomApplicationsSerializer } from './league-room-applications.serializer';
 import { LeagueRoomApplicationsService } from './league-room-applications.service';
+import { userInfo } from 'os';
 
 @Controller('league/rooms/:roomId/applications')
 @ApiTags('league', 'games', 'rooms', 'applications')
@@ -58,11 +61,13 @@ export class LeagueRoomApplicationsController {
   async createNewLeagueRoomApplication(
     @Param('roomId', ParseUUIDPipe) roomId: string,
     @Body() { demandedPosition }: CreateLeagueRoomApplicationDto,
+    @AuthUser() user: User,
   ): Promise<LeagueRoomApplicationDto> {
     return this.leagueRoomApplicationsSerializer.serialize(
       await this.leagueRoomApplicationsService.apply({
         roomId,
         demandedPosition,
+        userId: user.id,
       }),
     );
   }
@@ -81,11 +86,13 @@ export class LeagueRoomApplicationsController {
     @Param('roomId', ParseUUIDPipe) roomId: string,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
     @Body() updateLeagueRoomApplicationDto: UpdateLeagueRoomApplicationDto,
+    @AuthUser() user: User,
   ): Promise<void> {
     await this.leagueRoomApplicationsService.handleApplication({
       roomId,
       applicationId,
       updateLeagueRoomApplicationDto,
+      userId: user.id,
     });
   }
 
@@ -107,11 +114,13 @@ export class LeagueRoomApplicationsController {
   async getLeagueRoomApplicationsByStatus(
     @Param('roomId', ParseUUIDPipe) roomId: string,
     @Query() { status }: GetLeagueRoomApplicationQueryDto,
+    @AuthUser() user: User,
   ): Promise<LeagueRoomApplicationDto[]> {
     return this.leagueRoomApplicationsSerializer.serializeCollection(
       await this.leagueRoomApplicationsService.getRoomApplicationsByStatus({
         roomId,
         status,
+        userId: user.id,
       }),
     );
   }

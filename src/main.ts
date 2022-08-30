@@ -8,33 +8,23 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import * as morgan from 'morgan';
-import {
-  initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository,
-} from 'typeorm-transactional-cls-hooked';
 import { RolesChecker } from '../test/utils/roles.utils';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/badRequest.filter';
 import { QueryFailedFilter } from './shared/filters/queryFailed.error';
 import { RolesGuard } from './roles/roles.guard';
-import * as als from 'async-local-storage';
 import { setupSwagger } from './setup.swagger';
 import { SharedModule } from './shared/shared.module';
-import { usersContextMiddleware } from './users/users-context.middleware';
-import { AppConfig } from './shared/services/app.config';
 import { PaginatedResponseInterceptor } from './shared/interceptors/paginated-response.interceptor';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
+import { SentryInterceptor } from './shared/interceptors/sentry.interceptor';
+import { setupSentry } from './setup.sentry';
 
 async function bootstrap() {
-  als.enable();
-  als.enableLinkedTop();
-
-  initializeTransactionalContext();
-  patchTypeORMRepositoryWithBaseRepository();
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.select(SharedModule).get(ConfigService);
 
   app.enableCors({
     allowedHeaders: ['content-type', 'authorization'],
@@ -44,9 +34,6 @@ async function bootstrap() {
 
   app.use(helmet());
   app.use(morgan('combined'));
-
-  const appConfig = app.select(SharedModule).get(AppConfig);
-  app.use(usersContextMiddleware(appConfig));
 
   const reflector = app.get(Reflector);
 
@@ -59,6 +46,7 @@ async function bootstrap() {
     new ClassSerializerInterceptor(reflector),
     new PaginatedResponseInterceptor(),
     new ResponseInterceptor(),
+    new SentryInterceptor(configService),
   );
 
   app.useGlobalPipes(
@@ -73,11 +61,11 @@ async function bootstrap() {
   const rolesChecker = app.get<RolesChecker>(RolesChecker);
   app.useGlobalGuards(new RolesGuard(reflector, rolesChecker));
 
-  const configService = app.select(SharedModule).get(ConfigService);
-
   if (configService.get('NODE_ENV') !== 'production') {
     setupSwagger(app);
   }
+
+  setupSentry(app);
 
   const port = +configService.get('PORT');
   await app.listen(port);

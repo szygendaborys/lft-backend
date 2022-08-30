@@ -9,12 +9,11 @@ import { LoginUserDto } from './dto/login.user.dto';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { UserGamesRepository } from '../games/userGames.repository';
-import { UsersContext } from './users.context';
 import { UserNotFoundException } from './user-not-found.exception';
 import { UpdateUserDto } from './dto/update.user.dto';
 import { ForgotPasswordDto } from './dto/forgot.password.dto';
 import { NotificationTypes } from '../shared/notification/notification.config';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -23,12 +22,10 @@ export class UsersService {
     private readonly userGamesRepository: UserGamesRepository,
     private readonly authService: AuthService,
     private readonly notificationMedium: NotificationMedium,
+    private readonly dataSource: DataSource,
   ) {}
 
-  async login({
-    username,
-    password,
-  }: LoginUserDto): Promise<{
+  async login({ username, password }: LoginUserDto): Promise<{
     user: User;
     accessToken: TokenPayloadDto;
     refreshToken: TokenPayloadDto;
@@ -58,21 +55,19 @@ export class UsersService {
     });
   }
 
-  async update(updateUserDto: UpdateUserDto): Promise<void> {
-    const { userId } = UsersContext.get();
+  async update(updateUserDto: UpdateUserDto, userId: string): Promise<void> {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
       throw new UserNotFoundException();
     }
 
-    user.update(updateUserDto);
+    await user.update(updateUserDto);
 
     await this.userRepository.save(user);
   }
 
-  async findUser(): Promise<User> {
-    const { userId } = UsersContext.get();
+  async findUser(userId: string): Promise<User> {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
@@ -82,7 +77,11 @@ export class UsersService {
     return user;
   }
 
-  @Transactional()
+  /**
+   * TODO: Transactional CLS Hooked does not work with typeorm v9.0 +
+   * TODO: Need to find a way of handling transaction in nest
+   * We need to find another clear way of handling transactions
+   */
   async sendResetPasswordCode({ username }: ForgotPasswordDto): Promise<void> {
     const user = await this.userRepository.findOneByUsername(username);
 
@@ -114,9 +113,8 @@ export class UsersService {
       throw new InvalidVerificationCodeException();
     }
 
-    const isCodeValid = user.validateResetPasswordVerificationCode(
-      verificationCode,
-    );
+    const isCodeValid =
+      user.validateResetPasswordVerificationCode(verificationCode);
 
     await this.userRepository.save(user);
 
@@ -124,7 +122,7 @@ export class UsersService {
       throw new InvalidVerificationCodeException();
     }
 
-    user.changePassword(newPassword);
+    user.changePasswordWithoutValidation(newPassword);
 
     await this.userRepository.save(user);
   }

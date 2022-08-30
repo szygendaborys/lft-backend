@@ -1,4 +1,6 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PageDto } from '../../shared/page/page.dto';
 import { RIOT_API_REGIONS } from '../riotApi/riotApi.config';
 import { LeagueUser } from '../users/league-user.entity';
@@ -7,8 +9,13 @@ import { LeagueRoomQueryDto } from './dto/league-room.query.dto';
 import { SearchLeagueRoomQueryDto } from './dto/search-league-room.query.dto';
 import { LeagueRoom } from './league-room.entity';
 
-@EntityRepository(LeagueRoom)
-export class LeagueRoomsRepository extends Repository<LeagueRoom> {
+@Injectable()
+export class LeagueRoomsRepository {
+  constructor(
+    @InjectRepository(LeagueRoom)
+    private readonly repository: Repository<LeagueRoom>,
+  ) {}
+
   async findOneByIdAndRegion({
     roomId,
     region,
@@ -16,7 +23,8 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
     roomId: string;
     region: RIOT_API_REGIONS;
   }): Promise<LeagueRoom | undefined> {
-    return this.createQueryBuilder('lr')
+    return this.repository
+      .createQueryBuilder('lr')
       .leftJoinAndSelect('lr.applications', 'lra')
       .where('lr.id = :roomId', { roomId })
       .andWhere('lr.region = :region', { region })
@@ -25,7 +33,7 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
   }
 
   async saveRoom(leagueRoom: LeagueRoom): Promise<LeagueRoom> {
-    return this.save(leagueRoom);
+    return this.repository.save(leagueRoom);
   }
 
   /**
@@ -44,7 +52,8 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
   }): Promise<PageDto<LeagueRoom>> {
     const { dateFrom, dateTo, demandedPositions, order } = pageOptionsDto;
 
-    const query = this.createQueryBuilder('lr')
+    const query = this.repository
+      .createQueryBuilder('lr')
       .innerJoinAndSelect('lr.applications', 'lra', 'lra.status = :status', {
         status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
       })
@@ -95,7 +104,8 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
   }): Promise<PageDto<LeagueRoom>> {
     const { order, status } = pageOptionsDto;
 
-    return this.createQueryBuilder('lr')
+    return this.repository
+      .createQueryBuilder('lr')
       .innerJoinAndSelect('lr.applications', 'lra', 'lra.status = :status', {
         status: LEAGUE_ROOM_APPLICATION_STATUS.APPROVED,
       })
@@ -117,7 +127,7 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
 
         return `lr.id IN (${subQuery})`;
       })
-      .andWhere('lr.date > now()')
+      .andWhere("lr.date > now() - interval '1 hour'")
       .andWhere('lr.region = :region', { region: leagueUser.region })
       .orderBy('lr.date', order)
       .paginate(pageOptionsDto);
@@ -130,7 +140,8 @@ export class LeagueRoomsRepository extends Repository<LeagueRoom> {
     roomId: string;
     leagueUser: LeagueUser;
   }): Promise<LeagueRoom | undefined> {
-    return this.createQueryBuilder('lr')
+    return this.repository
+      .createQueryBuilder('lr')
       .where('lr.id = :roomId', { roomId })
       .innerJoin(
         'lr.applications',

@@ -1,3 +1,4 @@
+import { NotificationEntity } from './notification.entity';
 import { NotificationTypes } from './notification.config';
 import { CustomLogger } from './../loggers/custom.logger';
 import { MailHandler } from './handlers/mail.handler';
@@ -8,9 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module, Logger } from '@nestjs/common';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([NotificationRepository])],
+  imports: [TypeOrmModule.forFeature([NotificationEntity])],
   providers: [
     MailHandler,
+    NotificationRepository,
     {
       provide: NotificationMedium,
       useFactory: (
@@ -18,18 +20,16 @@ import { Module, Logger } from '@nestjs/common';
         mailHandler: MailHandler,
         logger: Logger,
       ) => {
-        const config: ReadonlyMap<
-          NotificationTypes,
-          NotificationHandler[]
-        > = new Map<NotificationTypes, NotificationHandler[]>([
-          [NotificationTypes.resetPasswordConfirmationLink, [mailHandler]],
-        ]);
+        const config: ReadonlyMap<NotificationTypes, NotificationHandler[]> =
+          new Map<NotificationTypes, NotificationHandler[]>([
+            [NotificationTypes.resetPasswordConfirmationLink, [mailHandler]],
+          ]);
 
         return new NotificationMedium(notificationRepository, config, logger);
       },
       inject: [NotificationRepository, MailHandler, CustomLogger],
     },
   ],
-  exports: [NotificationMedium],
+  exports: [NotificationMedium, NotificationRepository],
 })
 export class NotificationModule {}

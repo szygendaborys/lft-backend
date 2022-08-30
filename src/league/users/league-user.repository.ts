@@ -1,20 +1,28 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { LeagueUser } from './league-user.entity';
 
-@EntityRepository(LeagueUser)
-export class LeagueUserRepository extends Repository<LeagueUser> {
+@Injectable()
+export class LeagueUserRepository {
+  constructor(
+    @InjectRepository(LeagueUser)
+    private readonly repository: Repository<LeagueUser>,
+  ) {}
+
   async saveOne(leagueUser: LeagueUser): Promise<LeagueUser> {
-    return this.save(leagueUser);
+    return this.repository.save(leagueUser);
   }
 
   async findByUserId(userId: string): Promise<LeagueUser | undefined> {
-    return this.createQueryBuilder('lu')
-      .innerJoin('lu.userGames', 'ug')
-      .innerJoin('ug.user', 'u', 'u.id = :userId', { userId })
+    return this.repository
+      .createQueryBuilder('lu')
+      .innerJoinAndSelect('lu.userGames', 'ug')
+      .innerJoinAndSelect('ug.user', 'u', 'u.id = :userId', { userId })
       .getOne();
   }
 
   async removeLeagueUser(leagueUser: LeagueUser): Promise<void> {
-    await this.remove(leagueUser);
+    await this.repository.remove(leagueUser);
   }
 }

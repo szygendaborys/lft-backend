@@ -6,7 +6,7 @@ import { Method } from 'axios';
 export class HttpLogger implements LoggerService {
   private readonly logger: Logger = new Logger();
 
-  log({ method, route }: { method: Method; route: string }) {
+  log({ method, route }: { method: Method | string; route: string }) {
     this.logger.log(`[HTTP_SERVICE]: Fetching (${method}) ${route}...`);
   }
 
@@ -15,7 +15,7 @@ export class HttpLogger implements LoggerService {
     route,
     trace,
   }: {
-    method: Method;
+    method: Method | string;
     route: string;
     trace?: any;
   }) {

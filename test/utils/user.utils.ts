@@ -1,10 +1,10 @@
 import * as faker from 'faker';
-import { getConnection } from 'typeorm';
 import { Roles } from '../../src/roles/roles.config';
 import { User } from '../../src/users/user.entity';
+import { testDataSource } from '../test.module';
 
 export async function saveUser(opts?: Partial<User>) {
-  return await getConnection().getRepository(User).save(createUser(opts));
+  return await testDataSource.getRepository(User).save(createUser(opts));
 }
 
 export function createUser(opts?: Partial<User>) {
