@@ -22,7 +22,7 @@ In order to drop all data write:
 
 ## Seeding data into DB
 
-TODO
+TODO: Probably we can use typeorm seeds
 
 ## Security
 
@@ -66,7 +66,14 @@ await  this.notificationMedium.sendNotification({
 
 ## WebSockets
 
-**TODO:**
+Websocket gateways serve similar role as REST controllers. They are protected by guards.
+
+I.e. `chat.gateway.ts` serves as a "controller" for any incoming chat-related messages.
+
+We use websockets to:
+- Send new messages to room subscribers
+
+In the future we might want to publish some custom events. i.e. to automatically add new rooms into the dashboard.
 
 ## Testing
 
