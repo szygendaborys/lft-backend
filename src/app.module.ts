@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
-import { RolesChecker } from '../test/utils/roles.utils';
+import { RolesChecker } from './auth/roles.checker';
 import { JwtAuthGuard } from './auth/jwt.guard';
 import modules from './shared/modules';
 import { AppConfig } from './shared/services/app.config';
@@ -13,6 +13,7 @@ import { SharedModule } from './shared/shared.module';
 import { UserSubscriber } from './users/user.subscriber';
 import { DataSource } from 'typeorm';
 
+console.log(__dirname);
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -50,9 +51,14 @@ import { DataSource } from 'typeorm';
         database: appConfig.db.name,
         subscribers: [UserSubscriber],
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/migrations/*{.ts,.js}'],
-        synchronize: true,
+        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        synchronize: false,
         logging: ['error'],
+        migrationsRun: true,
+        cli: {
+          entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+          migrationsDir: [__dirname + '/database/migrations/*{.ts,.js}'],
+        },
       }),
       dataSourceFactory: async (options) => {
         const dataSource = await new DataSource(options).initialize();

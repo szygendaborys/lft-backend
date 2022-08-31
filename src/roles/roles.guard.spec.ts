@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RolesChecker } from '../../test/utils/roles.utils';
+import { RolesChecker } from '../auth/roles.checker';
 import { Roles } from './roles.config';
 import { RolesGuard } from './roles.guard';
 

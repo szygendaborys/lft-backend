@@ -25,11 +25,12 @@ module.exports = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   namingStrategy: new SnakeNamingStrategy(),
-  entities: ['./src/modules/**/*.entity{.ts,.js}'],
-  migrations: ['./src/database/migrations/*{.ts,.js}'],
-  synchronize: true,
+  entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/src/database/migrations/*{.ts,.js}'],
+  synchronize: false,
+  logging: ['error'],
   cli: {
-    entitiesDir: './src/modules/**/*.entity{.ts,.js}',
-    migrationsDir: './src/database/migrations',
+    entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
+    migrationsDir: [__dirname + '/src/database/migrations/*{.ts,.js}'],
   },
 };

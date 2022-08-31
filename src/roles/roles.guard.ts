@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RolesChecker } from '../../test/utils/roles.utils';
+import { RolesChecker } from '../auth/roles.checker';
 import { RequestWithUser } from '../shared/requestWithUser';
 import { Roles, ROLES } from './roles.config';
 

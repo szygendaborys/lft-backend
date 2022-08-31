@@ -10,7 +10,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import * as morgan from 'morgan';
-import { RolesChecker } from '../test/utils/roles.utils';
+import { RolesChecker } from './auth/roles.checker';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/badRequest.filter';
 import { QueryFailedFilter } from './shared/filters/queryFailed.error';

@@ -19,7 +19,7 @@ FROM base as production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-RUN npm ci
+RUN npm install
 COPY ../tsconfig.json ../tsconfig.build.json ./
 COPY ../src ./src
 RUN npm run build

@@ -1,0 +1,91 @@
+name: Deploy to Railway Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  int-tests:
+    runs-on: ubuntu-20.04
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:13.2
+        # Provide the password for postgres
+        env:
+          POSTGRES_DB: lft_dev_test
+          POSTGRES_USER: docker
+          POSTGRES_PASSWORD: docker
+
+        ports:
+          - 5433:5432
+
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install npm packages
+        run: npm ci
+
+      - name: Integration tests
+        run: npm run test:int
+
+  unit-tests:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm packages
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: [int-tests, unit-tests]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node 18
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.8
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:ci
+
+      - name: Install Railway
+        run: npm i -g @railway/cli
+
+      - name: Deploy
+        run: railway up --service backend-server
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
