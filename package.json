@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@nestjs/axios": "^0.1.0",
+    "@nestjs/cli": "^9.1.1",
     "@nestjs/common": "^9.0.11",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.11",
@@ -61,7 +62,6 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@nestjs/cli": "^9.1.1",
     "@nestjs/schematics": "^9.0.1",
     "@nestjs/testing": "^9.0.11",
     "@types/bcrypt": "^5.0.0",

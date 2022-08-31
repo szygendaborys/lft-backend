@@ -39,22 +39,28 @@ import { DataSource } from 'typeorm';
     SharedModule,
     TypeOrmModule.forRootAsync({
       inject: [AppConfig],
-      useFactory: (appConfig: AppConfig) => ({
-        keepConnectionAlive: true,
-        autoLoadEntities: true,
-        type: 'postgres',
-        url: `postgresql://${appConfig.db.username}:${appConfig.db.password}@${appConfig.db.host}:${appConfig.db.port}/${appConfig.db.name}`,
-        subscribers: [UserSubscriber],
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        synchronize: false,
-        logging: ['error'],
-        migrationsRun: true,
-        cli: {
-          entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-          migrationsDir: [__dirname + '/database/migrations/*{.ts,.js}'],
-        },
-      }),
+      useFactory: (appConfig: AppConfig) => {
+        const isProduction = appConfig.nodeEnv === 'production';
+        const fileExtensions = `${isProduction ? '{.js}' : '{.ts,.js}'}`;
+        return {
+          keepConnectionAlive: true,
+          autoLoadEntities: true,
+          type: 'postgres',
+          url: `postgresql://${appConfig.db.username}:${appConfig.db.password}@${appConfig.db.host}:${appConfig.db.port}/${appConfig.db.name}`,
+          subscribers: [UserSubscriber],
+          entities: [`${__dirname}/../**/*.entity${fileExtensions}`],
+          migrations: [`${__dirname}/database/migrations/*${fileExtensions}`],
+          synchronize: false,
+          logging: ['error'],
+          migrationsRun: true,
+          cli: {
+            entities: [__dirname + '/../**/*.entity{.js}'],
+            migrationsDir: [
+              `${__dirname}/database/migrations/*${fileExtensions}`,
+            ],
+          },
+        };
+      },
       dataSourceFactory: async (options) => {
         const dataSource = await new DataSource(options).initialize();
         return dataSource;

@@ -28,7 +28,7 @@ async function bootstrap() {
 
   app.enableCors({
     allowedHeaders: ['content-type', 'authorization'],
-    origin: 'http://localhost:3000',
+    origin: configService.get('CORS_ORIGIN'),
     credentials: true,
   });
 
