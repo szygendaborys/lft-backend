@@ -13,7 +13,6 @@ import { SharedModule } from './shared/shared.module';
 import { UserSubscriber } from './users/user.subscriber';
 import { DataSource } from 'typeorm';
 
-console.log(__dirname);
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -44,11 +43,7 @@ console.log(__dirname);
         keepConnectionAlive: true,
         autoLoadEntities: true,
         type: 'postgres',
-        host: appConfig.db.host,
-        port: appConfig.db.port,
-        username: appConfig.db.username,
-        password: appConfig.db.password,
-        database: appConfig.db.name,
+        url: `postgresql://${appConfig.db.username}:${appConfig.db.password}@${appConfig.db.host}:${appConfig.db.port}/${appConfig.db.name}`,
         subscribers: [UserSubscriber],
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
