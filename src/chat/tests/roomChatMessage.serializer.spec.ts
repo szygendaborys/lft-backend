@@ -16,6 +16,7 @@ describe('RoomChatMessageSerializer unit tests', () => {
     const result = serializer.serialize(messageEntity);
 
     expect(result).toMatchObject({
+      id: messageEntity.id,
       author: messageEntity.author.username,
       authorId: messageEntity.author.id,
       message: messageEntity.message,
