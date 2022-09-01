@@ -28,7 +28,7 @@ export class RoomChatGateway {
 
   @SubscribeMessage('subscribe_to_room')
   subscribeToRoom(
-    @MessageBody() roomId: string,
+    @MessageBody() { roomId }: { roomId: string },
     @ConnectedSocket() socket: Socket,
   ): void {
     this.logger.logEvent('subscribe_to_room');
@@ -38,7 +38,7 @@ export class RoomChatGateway {
 
   @SubscribeMessage('unsubscribe_from_room')
   unsubscribeFromRoom(
-    @MessageBody() roomId: string,
+    @MessageBody() { roomId }: { roomId: string },
     @ConnectedSocket() socket: Socket,
   ): void {
     this.logger.logEvent('unsubscribe_from_room');
