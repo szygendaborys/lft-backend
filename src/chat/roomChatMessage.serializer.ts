@@ -7,9 +7,10 @@ export class RoomChatMessageSerializer extends AbstractSerializer<
   RoomChatMessageDto
 > {
   public serialize(messageEntity: RoomChatMessageEntity): RoomChatMessageDto {
-    const { author, message, createdAt } = messageEntity;
+    const { id, author, message, createdAt } = messageEntity;
 
     return {
+      id,
       author: author.username,
       authorId: author.id,
       message,

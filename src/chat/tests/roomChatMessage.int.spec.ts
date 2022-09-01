@@ -116,12 +116,14 @@ describe('Room chat messages integration tests', () => {
       expect(res.body).toMatchObject({
         data: expect.arrayContaining([
           expect.objectContaining({
+            id: firstMessage.id,
             author: firstMessage.author.username,
             authorId: firstMessage.author.id,
             message: firstMessage.message,
             timestamp: firstMessage.createdAt.getTime(),
           }),
           expect.objectContaining({
+            id: secondMessage.id,
             author: secondMessage.author.username,
             authorId: secondMessage.author.id,
             message: secondMessage.message,
