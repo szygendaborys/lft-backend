@@ -15,7 +15,7 @@ import {
   createRandomRiotApiException,
   createRiotLeaguePlayerData,
 } from '../../../test/utils/riotApi.utils';
-import { RolesChecker } from '../../../test/utils/roles.utils';
+import { RolesChecker } from '../../auth/roles.checker';
 import { randomEnum } from '../../../test/utils/test.utils';
 import { saveUser } from '../../../test/utils/user.utils';
 import { UserGames } from '../../games/userGames.entity';

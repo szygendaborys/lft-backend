@@ -8,7 +8,7 @@ import {
   makeRequest,
 } from '../../test/test.module';
 import { saveGameConfig } from '../../test/utils/config.utils';
-import { RolesChecker } from '../../test/utils/roles.utils';
+import { RolesChecker } from '../auth/roles.checker';
 import { saveUser } from '../../test/utils/user.utils';
 import { Roles } from '../roles/roles.config';
 import { ConfigsModule } from './configs.module';

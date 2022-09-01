@@ -34,7 +34,7 @@ import { AppConfig } from '../src/shared/services/app.config';
 import { SharedModule } from '../src/shared/shared.module';
 import { User } from '../src/users/user.entity';
 import { UserSubscriber } from '../src/users/user.subscriber';
-import { RolesChecker } from './utils/roles.utils';
+import { RolesChecker } from '../src/auth/roles.checker';
 import { TestAuthGuardJwt, TEST_SECRET } from './utils/test.auth';
 import { PaginatedResponseInterceptor } from '../src/shared/interceptors/paginated-response.interceptor';
 import { ResponseInterceptor } from '../src/shared/interceptors/response.interceptor';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Roles } from '../../src/roles/roles.config';
+import { Roles } from '../roles/roles.config';
 
 @Injectable()
 export class RolesChecker {

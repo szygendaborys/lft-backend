@@ -13,7 +13,7 @@ import {
   refreshHeaderJwt,
   testDataSource,
 } from '../../test/test.module';
-import { RolesChecker } from '../../test/utils/roles.utils';
+import { RolesChecker } from '../auth/roles.checker';
 import { composeWithBaseUrl } from '../../test/utils/test.utils';
 import { saveUser } from '../../test/utils/user.utils';
 import { UserGames } from '../games/userGames.entity';

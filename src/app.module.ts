@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
-import { RolesChecker } from '../test/utils/roles.utils';
+import { RolesChecker } from './auth/roles.checker';
 import { JwtAuthGuard } from './auth/jwt.guard';
 import modules from './shared/modules';
 import { AppConfig } from './shared/services/app.config';
@@ -39,21 +39,28 @@ import { DataSource } from 'typeorm';
     SharedModule,
     TypeOrmModule.forRootAsync({
       inject: [AppConfig],
-      useFactory: (appConfig: AppConfig) => ({
-        keepConnectionAlive: true,
-        autoLoadEntities: true,
-        type: 'postgres',
-        host: appConfig.db.host,
-        port: appConfig.db.port,
-        username: appConfig.db.username,
-        password: appConfig.db.password,
-        database: appConfig.db.name,
-        subscribers: [UserSubscriber],
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/migrations/*{.ts,.js}'],
-        synchronize: true,
-        logging: ['error'],
-      }),
+      useFactory: (appConfig: AppConfig) => {
+        const isProduction = appConfig.nodeEnv === 'production';
+        const fileExtensions = `${isProduction ? '{.js}' : '{.ts,.js}'}`;
+        return {
+          keepConnectionAlive: true,
+          autoLoadEntities: true,
+          type: 'postgres',
+          url: `postgresql://${appConfig.db.username}:${appConfig.db.password}@${appConfig.db.host}:${appConfig.db.port}/${appConfig.db.name}`,
+          subscribers: [UserSubscriber],
+          entities: [`${__dirname}/../**/*.entity${fileExtensions}`],
+          migrations: [`${__dirname}/database/migrations/*${fileExtensions}`],
+          synchronize: false,
+          logging: ['error'],
+          migrationsRun: true,
+          cli: {
+            entities: [__dirname + '/../**/*.entity{.js}'],
+            migrationsDir: [
+              `${__dirname}/database/migrations/*${fileExtensions}`,
+            ],
+          },
+        };
+      },
       dataSourceFactory: async (options) => {
         const dataSource = await new DataSource(options).initialize();
         return dataSource;
