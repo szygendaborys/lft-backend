@@ -1,0 +1,71 @@
+name: Dependabot Automerge
+
+on:
+  pull_request:
+    branches: [dev]
+
+jobs:
+  check_if_dependabot_pr:
+    runs-on: ubuntu-20.04
+
+    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
+
+    steps:
+      - name: Check if PR is a dependabot commit
+        run: echo "All good. :)"
+
+  build:
+    runs-on: ubuntu-20.04
+
+    needs: [check_if_dependabot_pr]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm packages
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+  unit-tests:
+    runs-on: ubuntu-20.04
+
+    needs: [check_if_dependabot_pr]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm packages
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+  dependabot:
+    name: 'Dependabot'
+
+    needs: [build, tests] # After the test and build jobs, if one of them fails, it won't merge the PR.
+
+    runs-on: ubuntu-latest
+
+    permissions: write-all
+
+    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
+    steps:
+      - name: automerge
+        uses: actions/github-script@0.2.0
+        with:
+          script: |
+            github.pullRequests.createReview({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE'
+            })
+            github.pullRequests.merge({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: context.payload.pull_request.number
+            })
+          github-token: ${{github.token}}

@@ -6,8 +6,19 @@ on:
     branches: [dev]
 
 jobs:
+  check_if_not_dependabot_pr:
+    runs-on: ubuntu-20.04
+
+    if: ${{ github.actor != 'dependabot[bot]' }}
+
+    steps:
+      - name: Check if PR is not a dependabot commit
+        run: echo "All good. :)"
+
   unit-tests:
     runs-on: ubuntu-20.04
+
+    needs: [check_if_not_dependabot_pr]
 
     steps:
       - uses: actions/checkout@v2
