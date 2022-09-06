@@ -45,7 +45,7 @@ jobs:
   dependabot:
     name: 'Dependabot'
 
-    needs: [build, tests] # After the test and build jobs, if one of them fails, it won't merge the PR.
+    needs: [build, unit-tests] # After the test and build jobs, if one of them fails, it won't merge the PR.
 
     runs-on: ubuntu-latest
 
