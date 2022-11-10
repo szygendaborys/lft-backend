@@ -25,7 +25,7 @@
     "migration:down": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:revert -d datasource.ts"
   },
   "dependencies": {
-    "@nestjs/axios": "^0.1.0",
+    "@nestjs/axios": "^1.0.0",
     "@nestjs/cli": "^9.1.5",
     "@nestjs/common": "^9.1.6",
     "@nestjs/config": "^2.2.0",
